@@ -1,0 +1,22 @@
+// Define fibonacci function taking the value of n as an argument
+:D fibonacci(n) :>
+  // Create 2 new variables
+  >.< a o/ 0; // var a with the value of 0
+  >.< b o/ 1; // var b with the value of 1
+  // for loop that creates a variable called n, checks if n is less than 5 and adds 1 to i after each loop
+  ^o^ (>.< i o/ 0; i /o/ n; i o/ i +.+ 1) :>
+    // Create a new constant for old, holding the old value
+    >w< old o/ a;
+    // set the value of a to a + b
+    a o/ a +.+ b;
+    // set b to the old value
+    b o/ old;
+  <:
+  // return a from the function
+  c: a;
+<:
+
+// call the fibonacci function with the argument 5 and store the value in a constant called fib
+>w< fib o/ fibonacci(5)
+// print the fib constant
+pwint(fib);
