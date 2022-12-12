@@ -110,8 +110,9 @@ public class Scanner
                 if (IsDigit(c))
                 {
                     Number();
-                }
-                else
+                } else if (isAlpha(c)) {
+                    Identifier();
+                }else
                 {
                     Program.Error(_line, "Unexpected character");
                     
@@ -188,9 +189,26 @@ public class Scanner
         AddToken(TokenType.Number, double.Parse(source.Substring(_start, _current)));
     }
 
+    private void Identifier()
+    {
+        while (IsAlphaNumeric(Peek())) Advance();
+        
+        AddToken(TokenType.Identifier);
+    }
+    private bool IsAlphaNumeric(char c)
+    {
+        return IsDigit(c) || isAlpha(c);
+    }
+
     private bool IsDigit(char c)
     {
         return c is >= '0' and <= '9';
+    }
+    
+    private bool isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               c == '_';
     }
 
     private void AddToken(TokenType type)
