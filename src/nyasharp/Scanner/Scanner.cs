@@ -1,4 +1,6 @@
-﻿namespace nyasharp;
+﻿using System.Globalization;
+
+namespace nyasharp;
 
 public class Scanner
 {
@@ -103,9 +105,17 @@ public class Scanner
             case '\n':
                 _line++;
                 break;
-            
+
             default:
-                Program.Error(_line, "Unexpected character");
+                if (IsDigit(c))
+                {
+                    Number();
+                }
+                else
+                {
+                    Program.Error(_line, "Unexpected character");
+                    
+                }
                 break;
         }
     }
@@ -135,6 +145,11 @@ public class Scanner
         return IsEof() ? '\0' : source[_current];
     }
 
+    private char PeekNext()
+    {
+        return _current + 1 >= source.Length ? '\0' : source[_current + 1];
+    }
+
     private char Advance()
     {
         return source[_current++];
@@ -158,6 +173,24 @@ public class Scanner
 
         var value = source.Substring(_start, _current);
         AddToken(TokenType.String, value);
+    }
+
+    private void Number()
+    {
+        while (IsDigit(Peek())) Advance();
+
+        if (Peek() == '.' && IsDigit(PeekNext()))
+        {
+            Advance();
+            while (IsDigit(Peek())) Advance();
+        }
+        
+        AddToken(TokenType.Number, double.Parse(source.Substring(_start, _current)));
+    }
+
+    private bool IsDigit(char c)
+    {
+        return c is >= '0' and <= '9';
     }
 
     private void AddToken(TokenType type)
