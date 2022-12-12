@@ -41,6 +41,11 @@ public class Scanner
                 break;
             case ')': AddToken(TokenType.RightParen);
                 break;
+            // Check for dots and comma
+            case ',': AddToken(TokenType.Comma);
+                break;
+            case '.': AddToken(TokenType.Dot);
+                break;
             // Check for var and const declaration
             case '>':
                 var isMaybeVar = Match('.');
@@ -124,7 +129,9 @@ public class Scanner
             case '"': String();
                 break;
             
-            case ';':
+            case ';': AddToken(TokenType.SemiColon);
+                break;
+            
             case ' ':
             case '\r':
             case '\t':

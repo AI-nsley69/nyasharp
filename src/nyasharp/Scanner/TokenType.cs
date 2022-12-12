@@ -8,6 +8,8 @@ public enum TokenType
     LeftParen, RightParen,
     // Code Blocks
     BlockStart, BlockEnd,
+    // Semicolon, Dots & Commas
+    SemiColon, Dot, Comma,
     // Ops
     Add, Sub, Mult, Div,
     // Comparison
