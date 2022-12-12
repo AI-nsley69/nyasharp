@@ -50,7 +50,11 @@ public class Scanner
                 break;
             
             case '/':
-                if (DoubleMatch('o', '/')) AddToken(TokenType.Less);
+                // Discard comments
+                if (Match('/'))
+                {
+                    while (Peek() != '\n' && !IsEof()) Advance();
+                } else if (DoubleMatch('o', '/')) AddToken(TokenType.Less);
                 break;
             
             case '_':
@@ -74,7 +78,7 @@ public class Scanner
                 if (Match(':')) AddToken(TokenType.Return);
                 break;
             
-            // Arithmetic ops
+            // Next 2 are for Arithmetic ops
             case '+':
                 if (!Match('.')) break;
                 if (Match('+')) AddToken(TokenType.Add);
@@ -85,6 +89,19 @@ public class Scanner
                 if (!Match('.')) break;
                 if (Match('-')) AddToken(TokenType.Sub);
                 else if (Match('*')) AddToken(TokenType.Div);
+                break;
+            // Handle strings
+            case '"': String();
+                break;
+            
+            case ' ':
+            case '\r':
+            case '\t':
+                // Ignore whitespace.
+                break;
+            
+            case '\n':
+                _line++;
                 break;
             
             default:
@@ -113,9 +130,34 @@ public class Scanner
         return true;
     }
 
+    private char Peek()
+    {
+        return IsEof() ? '\0' : source[_current];
+    }
+
     private char Advance()
     {
         return source[_current++];
+    }
+
+    private void String()
+    {
+        while (Peek() != '"' && !IsEof())
+        {
+            if (Peek() == '\n') _line++;
+            Advance();
+        }
+
+        if (IsEof())
+        {
+            Program.Error(_line, "Unterminated string.");
+            return;
+        }
+
+        Advance();
+
+        var value = source.Substring(_start, _current);
+        AddToken(TokenType.String, value);
     }
 
     private void AddToken(TokenType type)
