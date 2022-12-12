@@ -74,7 +74,11 @@ public class Scanner
                 if (Match('/'))
                 {
                     while (Peek() != '\n' && !IsEof()) Advance();
-                } else if (DoubleMatch('o', '/')) AddToken(TokenType.Less);
+                } else if (Match('o'))
+                {
+                    if (!Match('/')) break;
+                    AddToken(TokenType.Less);
+                }
                 break;
             
             case '_':
