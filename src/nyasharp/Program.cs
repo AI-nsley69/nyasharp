@@ -1,4 +1,6 @@
-﻿namespace nyasharp
+﻿using nyasharp.AST;
+
+namespace nyasharp
 {
     internal class Program
     {
@@ -34,30 +36,55 @@
 
         private static void RunPrompt()
         {
-            return;
+            for (;;)
+            {
+                Console.Write("> ");
+                var line = Console.ReadLine();
+                if (line == null) break;
+                Run(line);
+            }
         }
 
         private static void Run(string source)
         {
+            // Tokenize
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
+            // Parse
+            var parser = new Parser.Parser(tokens);
+            Expr expressions = parser.Parse();
+
+            if (_hadError) return;
             
-            // Print tokens for now
+            Console.WriteLine(new Printer().Print(expressions));
+            /* Print tokens for now
             foreach (var token in tokens)
             {
                 Console.WriteLine(token.ToString());
             }
-        }
-
-        public static void Error(int line, string message)
-        {
-            Report(line, "", message);
+            */
         }
 
         private static void Report(int line, string where, string message)
         {
             Console.WriteLine("[line " + line + "] Error" + where + ": " + message);
             _hadError = true;
+        }
+        
+        public static void Error(Token token, string message)
+        {
+            if (token.type == TokenType.EOF)
+            {
+                Report(token.line, " at end", message);
+            }
+            else
+            {
+                Report(token.line, " at '" + token.lexeme + "'", message);
+            }
+        }
+        public static void Error(int line, string message)
+        {
+            Report(line, "", message);
         }
     }
 }
