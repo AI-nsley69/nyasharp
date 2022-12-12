@@ -24,6 +24,7 @@
             return 0;
         }
 
+     
         private static void RunFile(string path)
         {
             var bytes = File.ReadAllBytes(Path.GetFullPath(path));
