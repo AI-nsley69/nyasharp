@@ -1,11 +1,15 @@
-﻿using nyasharp.AST;
+﻿using System.Text;
+using nyasharp.AST;
+using nyasharp.Interpreter;
 
 namespace nyasharp
 {
     internal class Program
     {
         // Incase we get an error, don't execute the code
+        private static Interpreter.Interpreter _interpreter = new Interpreter.Interpreter();
         private static bool _hadError = false;
+        private static bool _hadRuntimeError = false;
         public static int Main(string[] args)
         {
             if (args.Length > 1)
@@ -31,7 +35,6 @@ namespace nyasharp
         {
             var bytes = File.ReadAllBytes(Path.GetFullPath(path));
             Run(System.Text.Encoding.Default.GetString(bytes));
-            if (_hadError) Environment.Exit(65);
         }
 
         private static void RunPrompt()
@@ -54,9 +57,13 @@ namespace nyasharp
             var parser = new Parser.Parser(tokens);
             Expr expressions = parser.Parse();
 
-            if (_hadError) return;
+            if (_hadError) Environment.Exit(65);
+            if (_hadRuntimeError) Environment.Exit(70);
             
-            Console.WriteLine(new Printer().Print(expressions));
+            _interpreter.interpret(expressions);
+            
+            // Console.WriteLine(new Printer().Print(expressions));
+            
             /* Print tokens for now
             foreach (var token in tokens)
             {
@@ -85,6 +92,15 @@ namespace nyasharp
         public static void Error(int line, string message)
         {
             Report(line, "", message);
+        }
+
+        public static void RuntimeError(RuntimeError error)
+        {
+            var tmp = new StringBuilder();
+            tmp.Append(error.Message + "\n[line " + error.token.line + "]");
+            var err = new StringWriter(tmp);
+            Console.SetError(err);
+            _hadRuntimeError = true;
         }
     }
 }
