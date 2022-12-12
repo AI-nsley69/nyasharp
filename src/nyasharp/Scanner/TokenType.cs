@@ -2,6 +2,8 @@
 
 public enum TokenType
 {
+    // Help parsing by indicating that something is nothing, has to be used for the keywords dict
+    Nothing,
     // Parentheses
     LeftParen, RightParen,
     // Ops

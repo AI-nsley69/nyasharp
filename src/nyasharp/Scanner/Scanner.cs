@@ -11,9 +11,12 @@ public class Scanner
     private int _tmp = 0;
     private int _line = 1;
 
+    private readonly Dictionary<string, TokenType> keywords;
     public Scanner(string source)
     {
         this.source = source;
+        keywords = new Dictionary<string, TokenType>();
+        keywords.Add("pwint", TokenType.Print);
     }
 
     public List<Token> ScanTokens()
@@ -35,13 +38,18 @@ public class Scanner
         {
             // Check for var and const declaration
             case '>':
-                var isVar = DoubleMatch('.', '<');
-                var isConst = !isVar && DoubleMatch('w', '<');
-                if (isVar || isConst) AddToken(isVar ? TokenType.Var : TokenType.Const);
+                var isMaybeVar = Match('.');
+                var isMaybeConst = Match('w');
+                if (isMaybeConst || isMaybeVar)
+                {
+                    if (!Match('<')) break;
+                    AddToken(isMaybeVar ? TokenType.Var : TokenType.Const);
+                }
                 break;
             // Check for assignment
             case 'o':
                 if (Match('/')) AddToken(TokenType.Assign);
+                else Default(c);
                 break;
             // Next 3 cases are for comparisons
             case '\\':
@@ -78,6 +86,7 @@ public class Scanner
             
             case 'c':
                 if (Match(':')) AddToken(TokenType.Return);
+                else Default(c);
                 break;
             
             // Next 2 are for Arithmetic ops
@@ -96,6 +105,7 @@ public class Scanner
             case '"': String();
                 break;
             
+            case ';':
             case ' ':
             case '\r':
             case '\t':
@@ -107,24 +117,28 @@ public class Scanner
                 break;
 
             default:
-                if (IsDigit(c))
-                {
-                    Number();
-                } else if (isAlpha(c)) {
-                    Identifier();
-                }else
-                {
-                    Program.Error(_line, "Unexpected character");
-                    
-                }
+                Default(c);
                 break;
+        }
+    }
+
+    private void Default(char c)
+    {
+        if (IsDigit(c))
+        {
+            Number();
+        } else if (isAlpha(c)) {
+            Identifier();
+        }else
+        {
+            Program.Error(_line, "Unexpected character: " + c);
         }
     }
 
     private bool DoubleMatch(char next, char last)
     {
-        _tmp = _current;
         var hasNext = Match(next);
+        _tmp = _current;
         _current++;
         var hasLast = Match(last);
         var check = hasNext && hasLast;
@@ -171,29 +185,31 @@ public class Scanner
         }
 
         Advance();
-
-        var value = source.Substring(_start, _current);
+        
+        var value = GetSubstring();
         AddToken(TokenType.String, value);
     }
 
     private void Number()
     {
         while (IsDigit(Peek())) Advance();
-
         if (Peek() == '.' && IsDigit(PeekNext()))
         {
             Advance();
             while (IsDigit(Peek())) Advance();
         }
         
-        AddToken(TokenType.Number, double.Parse(source.Substring(_start, _current)));
+        AddToken(TokenType.Number, double.Parse(GetSubstring()));
     }
 
     private void Identifier()
     {
         while (IsAlphaNumeric(Peek())) Advance();
-        
-        AddToken(TokenType.Identifier);
+        var text = GetSubstring();
+        TokenType type;
+        if (keywords.TryGetValue(text, out type));
+        if (type == TokenType.Nothing) type = TokenType.Identifier;
+        AddToken(type);
     }
     private bool IsAlphaNumeric(char c)
     {
@@ -218,8 +234,14 @@ public class Scanner
 
 	private void AddToken(TokenType type, object literal)
     {
-        var text = source.Substring(_start, _current);
+        var text = GetSubstring();
         tokens.Add(new Token(type, text, literal, _line));
+    }
+
+    private string GetSubstring()
+    {
+        var delta = _current - _start;
+        return source.Substring(_start, delta);
     }
 
 
