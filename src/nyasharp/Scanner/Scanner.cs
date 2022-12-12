@@ -36,6 +36,11 @@ public class Scanner
         var c = Advance();
         switch (c)
         {
+            // Check for parentheses
+            case '(': AddToken(TokenType.LeftParen);
+                break;
+            case ')': AddToken(TokenType.RightParen);
+                break;
             // Check for var and const declaration
             case '>':
                 var isMaybeVar = Match('.');
@@ -75,13 +80,27 @@ public class Scanner
             
             // For loops, while loops and if statements
             case '^':
-                if (DoubleMatch('u', '^')) AddToken(TokenType.If);
-                else if (DoubleMatch('o', '^')) AddToken(TokenType.For);
-                else if (DoubleMatch('w', '^')) AddToken(TokenType.While);
+                var isIf = Match('u');
+                var isFor = Match('o');
+                var isWhile = Match('w');
+                if (isIf || isFor || isWhile)
+                {
+                    if (!Match('^')) break;
+                    var type = TokenType.Nothing;
+                    if (isIf) type = TokenType.If;
+                    else if (isFor) type = TokenType.For;
+                    else if (isWhile) type = TokenType.While;
+                    if (type != TokenType.Nothing) AddToken(type);   
+                }
                 break;
             
             case ':':
                 if (Match('D')) AddToken(TokenType.Func);
+                else if (Match('>')) AddToken(TokenType.BlockStart);
+                break;
+            
+            case '<':
+                if (Match(':')) AddToken(TokenType.BlockEnd);
                 break;
             
             case 'c':

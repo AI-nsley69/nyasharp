@@ -6,6 +6,8 @@ public enum TokenType
     Nothing,
     // Parentheses
     LeftParen, RightParen,
+    // Code Blocks
+    BlockStart, BlockEnd,
     // Ops
     Add, Sub, Mult, Div,
     // Comparison
