@@ -4,14 +4,17 @@ using nyasharp.AST;
 
 namespace nyasharp.Interpreter;
 
-public class Interpreter : Visitor<Object>
+public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 {
-    public void interpret(Expr expression)
+    private Environment _environment = new();
+    public void interpret(List<Stmt> statements)
     {
         try
         {
-            object value = Evaluate(expression);
-            Console.WriteLine(Stringify(value));
+            foreach (var stmt in statements)
+            {
+                Execute(stmt);
+            }
         }
         catch (RuntimeError error)
         {
@@ -36,6 +39,14 @@ public class Interpreter : Visitor<Object>
 
         return obj.ToString();
     }
+
+    public object VisitExpressionAssign(Expr.Assign assign)
+    {
+        Object value = Evaluate(assign.value);
+        _environment.Assign(assign.name, value);
+        return value;
+    }
+
     public object VisitExpressionBinary(Expr.Binary binary)
     {
         var left = Evaluate(binary.left);
@@ -100,6 +111,28 @@ public class Interpreter : Visitor<Object>
         return expr.Accept(this);
     }
 
+    private void Execute(Stmt stmt)
+    {
+        stmt.Accept(this);
+    }
+
+    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    {
+        Environment previous = this._environment;
+        try
+        {
+            this._environment = environment;
+            foreach (var stmt in statements)
+            {
+                Execute(stmt);
+            }
+        }
+        finally
+        {
+            this._environment = previous;
+        }
+    }
+
     public object VisitExpressionLiteral(Expr.Literal literal)
     {
         return literal.value;
@@ -119,6 +152,33 @@ public class Interpreter : Visitor<Object>
         }
         // Unreachable
         return null;
+    }
+
+    public object VisitExpressionVariable(Expr.Variable variable)
+    {
+        return _environment.Get(variable.name);
+    }
+
+    public void VisitStmtExpression(Stmt.Expression stmt)
+    {
+        Evaluate(stmt.expression);
+    }
+
+    public void VisitStmtPrint(Stmt.Print print)
+    {
+        object value = Evaluate(print.expression);
+        Console.WriteLine(Stringify(value));
+    }
+
+    public void VisitStmtVar(Stmt.Var var)
+    {
+        object value = Evaluate(var.initializer);
+        _environment.Define(var.name.lexeme, value);
+    }
+
+    public void VisitStmtBlock(Stmt.Block block)
+    {
+        ExecuteBlock(block.statements, new Environment(_environment));
     }
 
     private void CheckNumberOperand(Token op, object operand)

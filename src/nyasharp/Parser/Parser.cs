@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.Design;
+using System.Data;
+using System.Linq.Expressions;
 using Microsoft.VisualBasic.CompilerServices;
 using nyasharp.AST;
 
@@ -15,23 +17,105 @@ public class Parser
         this._tokens = tokens;
     }
 
-    public Expr? Parse()
+    public List<Stmt> Parse()
     {
-        try
+        List<Stmt> statements = new List<Stmt>();
+        while (!IsEof())
         {
-            return Expression();
+            statements.Add(Declaration());
         }
-        catch (ParserError error)
-        {
-            return null;
-        }
+
+        return statements;
     }
 
     private Expr Expression()
     {
-        return Equality();
+        return Assignment();
     }
 
+    private Stmt Declaration()
+    {
+        try
+        {
+            if (Match(TokenType.Var)) return VarDeclaration();
+            return Statement();
+        }
+        catch (ParserError error)
+        {
+            Synchronize();
+            return null;
+        }
+    }
+
+    private Stmt Statement()
+    {
+        if (Match(TokenType.Print)) return PrintStatement();
+        if (Match(TokenType.BlockStart)) return new Stmt.Block(Block());
+        return ExpressionStatement();
+    }
+
+    private Stmt PrintStatement()
+    {
+        Expr value = Expression();
+        Consume(TokenType.SemiColon, "Expected ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt VarDeclaration()
+    {
+        Token name = Consume(TokenType.Identifier, "Expected variable name.");
+
+        Expr? initalizer = null;
+
+        if (Match(TokenType.Assign))
+        {
+            initalizer = Expression();
+        }
+
+        Consume(TokenType.SemiColon, "Expected ';' after variable declaration");
+        return new Stmt.Var(name, initalizer);
+    }
+    
+    private Stmt ExpressionStatement() {
+        Expr expr = Expression();
+        Consume(TokenType.SemiColon, "Expected ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    private List<Stmt> Block()
+    {
+        List<Stmt> statements = new List<Stmt>();
+
+        while (!Check(TokenType.BlockEnd) && !IsEof())
+        {
+            statements.Add(Declaration());
+        }
+
+        Consume(TokenType.BlockEnd, "Expected '<:' after block.");
+        return statements;
+    }
+
+    private Expr Assignment()
+    {
+        Expr expr = Equality();
+
+        if (Match(TokenType.Assign))
+        {
+            Token equals = Previous();
+            Expr value = Assignment();
+
+            if (expr is Expr.Variable)
+            {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+    
     private Expr Equality()
     {
         Expr expr = Comparison();
@@ -109,6 +193,11 @@ public class Parser
         if (Match(TokenType.Number, TokenType.String))
         {
             return new Expr.Literal(Previous().literal);
+        }
+
+        if (Match(TokenType.Identifier))
+        {
+            return new Expr.Variable(Previous());
         }
 
         if (Match(TokenType.LeftParen))

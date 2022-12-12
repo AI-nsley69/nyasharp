@@ -17,6 +17,8 @@ _o_ - not equal to
 +.* - multiplication operator
 -.* - division operator
 
+
+
 ^u^ - if statement
 ^o^ - for loop
 ^w^ - while loop

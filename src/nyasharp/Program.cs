@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using nyasharp.AST;
 using nyasharp.Interpreter;
+using Environment = System.Environment;
 
 namespace nyasharp
 {
@@ -45,22 +46,24 @@ namespace nyasharp
                 var line = Console.ReadLine();
                 if (line == null) break;
                 Run(line);
+                _hadError = false;
             }
         }
 
         private static void Run(string source)
         {
+            if (_hadError) Environment.Exit(65);
+
             // Tokenize
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
             // Parse
             var parser = new Parser.Parser(tokens);
-            Expr expressions = parser.Parse();
-
-            if (_hadError) Environment.Exit(65);
+            List<Stmt> statements = parser.Parse();
+            
             if (_hadRuntimeError) Environment.Exit(70);
             
-            _interpreter.interpret(expressions);
+            _interpreter.interpret(statements);
             
             // Console.WriteLine(new Printer().Print(expressions));
             

@@ -2,11 +2,11 @@
 
 namespace nyasharp.AST;
 
-public class Printer : Visitor<String>
+public class Printer : Expr.Visitor<String>
 {
     public string Print(Expr expr)
     {
-        return expr.Accept(this);
+        return expr.Accept<>(this);
     }
 
     public string VisitExpressionBinary(Expr.Binary binary)
