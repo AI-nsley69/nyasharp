@@ -74,6 +74,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             case TokenType.Add:
                 if (left is double d1 && right is double d2) return d1 + d2;
                 if (left is string s1 && right is string s2) return s1 + s2;
+                if (left is string || right is string) return left.ToString() + right;
                 throw new RuntimeError(binary.op,
                     "Operands must be two numbers or two strings.");
             case TokenType.Div:
