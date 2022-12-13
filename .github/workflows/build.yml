@@ -22,9 +22,9 @@ jobs:
       - name: Compile
         run: |
           cd ./src/nyasharp
-          if ["$RUNNER_OS" == "Linux"]; then
+          if [ "$RUNNER_OS" == "Linux" ]; then
              dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
-          elif ["$RUNNER_OS" == "Windows"]; then
+          elif [ "$RUNNER_OS" == "Windows" ]; then
              dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
           else
              echo "$RUNNER_OS not supported"
