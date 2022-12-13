@@ -24,8 +24,12 @@ jobs:
           cd ./src/nyasharp
           if ["$RUNNER_OS" == "Linux"]; then
              dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
-          elif ["$RUNNER_OS" == "Windows"]
+          elif ["$RUNNER_OS" == "Windows"]; then
              dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
+          else
+             echo "$RUNNER_OS not supported"
+             exit 1
+          fi
       - name: Capture artifacts
         uses: actions/upload-artifact@v2
         with:
