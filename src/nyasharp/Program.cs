@@ -21,6 +21,12 @@ namespace nyasharp
 
             if (args.Length == 1)
             {
+                if (!args[0].EndsWith(".nya"))
+                {
+                    Console.WriteLine(
+                        "UwU! Sow sowwy. It wooks wike ywou mwade a fucky wucky. This fiwe is not .nya :c");
+                    return 0;
+                }
                 RunFile(args[0]);
             }
             else

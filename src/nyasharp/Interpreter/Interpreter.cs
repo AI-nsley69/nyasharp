@@ -220,7 +220,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     public void VisitStmtIf(Stmt.If ifStmt)
     {
-        if (IsTruthy(ifStmt.condition))
+        var condition = Evaluate(ifStmt.condition);
+        
+        if (IsTruthy(condition))
         {
             Execute(ifStmt.thenBranch);
         } else if (ifStmt.elseBranch != null)
