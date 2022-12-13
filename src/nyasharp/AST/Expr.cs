@@ -6,6 +6,7 @@ public abstract class Expr
     {
         T VisitExpressionAssign(Assign assign);
         T VisitExpressionBinary(Expr.Binary binary);
+        T VisitExpressionCall(Expr.Call call);
         T VisitExpressionGrouping(Expr.Grouping grouping);
         T VisitExpressionLiteral(Expr.Literal literal);
         T VisitExpressionLogical(Expr.Logical logical);
@@ -48,6 +49,24 @@ public abstract class Expr
         public override T Accept<T>(Visitor<T> visitor)
         {
             return visitor.VisitExpressionBinary(this);
+        }
+    }
+
+    public class Call : Expr
+    {
+        public readonly Expr callee;
+        public readonly Token paren;
+        public readonly List<Expr>? args;
+
+        public Call(Expr callee, Token paren, List<Expr>? args)
+        {
+            this.callee = callee;
+            this.paren = paren;
+            this.args = args;
+        }
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitExpressionCall(this);
         }
     }
 

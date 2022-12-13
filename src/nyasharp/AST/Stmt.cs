@@ -7,8 +7,10 @@ public abstract class Stmt
     public interface Visitor
     {
         void VisitStmtExpression(Expression expr);
+        void VisitStmtFunc(Func func);
         void VisitStmtIf(If ifStmt);
         void VisitStmtPrint(Print print);
+        void VisitStmtReturn(Return rtrn);
         void VisitStmtVar(Var var);
         void VisitStmtWhile(While whileStmt);
         void VisitStmtBlock(Block block);
@@ -29,6 +31,24 @@ public abstract class Stmt
             visitor.VisitStmtExpression(this);
         }
     };
+
+    public class Func : Stmt
+    {
+        public readonly Token name;
+        public readonly List<Token> parameters;
+        public readonly List<Stmt> body;
+
+        public Func(Token name, List<Token> parameters, List<Stmt> body)
+        {
+            this.name = name;
+            this.parameters = parameters;
+            this.body = body;
+        }
+        public override void Accept(Visitor visitor)
+        {
+            visitor.VisitStmtFunc(this);
+        }
+    }
 
     public class If : Stmt
     {
@@ -61,6 +81,22 @@ public abstract class Stmt
         public override void Accept(Visitor visitor)
         {
             visitor.VisitStmtPrint(this);
+        }
+    }
+
+    public class Return : Stmt
+    {
+        public readonly Token keyword;
+        public readonly Expr? value;
+
+        public Return(Token keyword, Expr? value)
+        {
+            this.keyword = keyword;
+            this.value = value;
+        }
+        public override void Accept(Visitor visitor)
+        {
+            visitor.VisitStmtReturn(this);
         }
     }
 

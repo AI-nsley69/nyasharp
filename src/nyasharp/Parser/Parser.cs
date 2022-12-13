@@ -38,6 +38,7 @@ public class Parser
     {
         try
         {
+            if (Match(TokenType.Func)) return Function("function");
             if (Match(TokenType.Var)) return VarDeclaration();
             return Statement();
         }
@@ -53,6 +54,7 @@ public class Parser
         if (Match(TokenType.For)) return ForStatement();
         if (Match(TokenType.If)) return IfStatement();
         if (Match(TokenType.Print)) return PrintStatement();
+        if (Match(TokenType.Return)) return ReturnStatement();
         if (Match(TokenType.While)) return WhileStatement();
         if (Match(TokenType.BlockStart)) return new Stmt.Block(Block());
         return ExpressionStatement();
@@ -135,6 +137,19 @@ public class Parser
         return new Stmt.Print(value);
     }
 
+    private Stmt ReturnStatement()
+    {
+        Token keyword = Previous();
+        Expr value = null;
+        if (!Check(TokenType.SemiColon))
+        {
+            value = Expression();
+        }
+
+        Consume(TokenType.SemiColon, "Expected ';' after return.");
+        return new Stmt.Return(keyword, value);
+    }
+
     private Stmt VarDeclaration()
     {
         Token name = Consume(TokenType.Identifier, "Expected variable name.");
@@ -164,6 +179,31 @@ public class Parser
         Expr expr = Expression();
         Consume(TokenType.SemiColon, "Expected ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    private Stmt.Func Function(string kind)
+    {
+        Token name = Consume(TokenType.Identifier, "Expected" + kind + " name.");
+        Consume(TokenType.LeftParen, "Expected '(' after " + kind + " name.");
+        List<Token> parameters = new List<Token>();
+        if (!Check(TokenType.RightParen))
+        {
+            do
+            {
+                if (parameters.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.Add(Consume(TokenType.Identifier, "Expected parameter name."));
+            } while (Match(TokenType.Comma));
+        }
+
+        Consume(TokenType.RightParen, "Expected ')' after parameters.");
+
+        Consume(TokenType.BlockStart, "Expected ':>' before " + kind + " body.");
+        List<Stmt> body = Block();
+        return new Stmt.Func(name, parameters, body);
     }
 
     private List<Stmt> Block()
@@ -293,7 +333,46 @@ public class Parser
             return new Expr.Unary(op, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private Expr Call()
+    {
+        Expr expr = Primary();
+
+        while (true)
+        {
+            if (Match(TokenType.LeftParen))
+            {
+                expr = FinishCall(expr);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private Expr FinishCall(Expr callee)
+    {
+        List<Expr> arguments = new List<Expr>();
+        if (!Check(TokenType.RightParen))
+        {
+            do
+            {
+                if (arguments.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.Add(Expression());
+            } while (Match(TokenType.Comma));
+        }
+
+        Token paren = Consume(TokenType.RightParen, "Expected ')' after arguments.");
+
+        return new Expr.Call(callee, paren, arguments);
     }
 
     private Expr Primary()

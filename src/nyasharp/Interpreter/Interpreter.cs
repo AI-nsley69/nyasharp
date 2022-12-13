@@ -6,7 +6,13 @@ namespace nyasharp.Interpreter;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 {
-    private Environment _environment = new();
+    public Environment _globals = new();
+    public Environment _environment;
+
+    public Interpreter()
+    {
+        _environment = _globals;
+    }
     public void interpret(List<Stmt> statements)
     {
         try
@@ -88,6 +94,31 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return null;
     }
 
+    public object VisitExpressionCall(Expr.Call call)
+    {
+        object callee = Evaluate(call.callee);
+
+        List<object> arguments = new List<object>();
+        foreach (var arg in call.args)
+        {
+            arguments.Add(Evaluate(arg));
+        }
+
+        if (callee is ICallable func)
+        {
+            if (arguments.Count != func.Arity())
+            {
+                throw new RuntimeError(call.paren,
+                    "Expected" + func.Arity() + " arguments but got " + arguments.Count + ".");
+            }
+            return func.Call(this, arguments);
+        }
+        else
+        {
+            throw new RuntimeError(call.paren, "Can only call functions and classes.");
+        }
+    }
+    
     private void CheckNumberOperands(Token op, object left, object right)
     {
         if (left is double && right is double) return;
@@ -117,7 +148,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         stmt.Accept(this);
     }
 
-    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    public void ExecuteBlock(List<Stmt> statements, Environment environment)
     {
         Environment previous = this._environment;
         try
@@ -181,6 +212,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Evaluate(stmt.expression);
     }
 
+    public void VisitStmtFunc(Stmt.Func func)
+    {
+        Function function = new Function(func);
+        _environment.Define(func.name.lexeme, function);
+    }
+
     public void VisitStmtIf(Stmt.If ifStmt)
     {
         if (IsTruthy(ifStmt.condition))
@@ -196,6 +233,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     {
         object value = Evaluate(print.expression);
         Console.WriteLine(Stringify(value));
+    }
+
+    public void VisitStmtReturn(Stmt.Return rtrn)
+    {
+        object value = null;
+        if (rtrn.value != null) value = Evaluate(rtrn.value);
+
+        throw new Return(value);
     }
 
     public void VisitStmtVar(Stmt.Var var)

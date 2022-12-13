@@ -6,7 +6,7 @@
   // for loop that creates a variable called n, checks if n is less than 5 and adds 1 to i after each loop
   ^o^ (>.< i o/ 0; i /o/ n; i o/ i +.+ 1) :>
     // Create a new constant for old, holding the old value
-    >w< old o/ a;
+    >.< old o/ a;
     // set the value of a to a + b
     a o/ a +.+ b;
     // set b to the old value
@@ -17,6 +17,7 @@
 <:
 
 // call the fibonacci function with the argument 5 and store the value in a constant called fib
->w< fib o/ fibonacci(5)
+>.< seq o/ 25;
+>.< fib o/ fibonacci(seq);
 // print the fib constant
-pwint(fib);
+pwint "Numbew of fib seqwuence " +.+ seq +.+ " is " +.+ fib;
