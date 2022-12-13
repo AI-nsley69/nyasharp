@@ -18,6 +18,8 @@ public class Scanner
         this.source = source;
         keywords = new Dictionary<string, TokenType>();
         keywords.Add("pwint", TokenType.Print);
+        keywords.Add("twue", TokenType.True);
+        keywords.Add("fawse", TokenType.False);
     }
 
     public List<Token> ScanTokens()
@@ -46,6 +48,9 @@ public class Scanner
             case ',': AddToken(TokenType.Comma);
                 break;
             case '.': AddToken(TokenType.Dot);
+                break;
+            // Check for not operator
+            case '~': AddToken(TokenType.Not);
                 break;
             // Check for var and const declaration
             case '>':
@@ -91,13 +96,15 @@ public class Scanner
             // For loops, while loops and if statements
             case '^':
                 var isIf = Match('u');
+                var isElse = Match('e');
                 var isFor = Match('o');
                 var isWhile = Match('w');
-                if (isIf || isFor || isWhile)
+                if (isIf || isElse || isFor || isWhile)
                 {
                     if (!Match('^')) break;
                     var type = TokenType.Nothing;
                     if (isIf) type = TokenType.If;
+                    else if (isElse) type = TokenType.Else;
                     else if (isFor) type = TokenType.For;
                     else if (isWhile) type = TokenType.While;
                     if (type != TokenType.Nothing) AddToken(type);   
@@ -117,7 +124,22 @@ public class Scanner
                 if (Match(':')) AddToken(TokenType.Return);
                 else Default(c);
                 break;
-            
+            // Check for OR
+            case 'v':
+                if (Match('.'))
+                {
+                    if (!Match('v')) break;
+                    AddToken(TokenType.Or);
+                } else Default(c);
+                break;
+            // Check for AND
+            case '&':
+                if (Match('.'))
+                {
+                    if (!Match('&')) break;
+                    AddToken(TokenType.And);
+                }
+                break;
             // Next 2 are for Arithmetic ops
             case '+':
                 if (!Match('.')) break;

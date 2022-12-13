@@ -1,12 +1,16 @@
-﻿namespace nyasharp.AST;
+﻿using System.Diagnostics;
+
+namespace nyasharp.AST;
 
 public abstract class Stmt
 {
     public interface Visitor
     {
         void VisitStmtExpression(Expression expr);
+        void VisitStmtIf(If ifStmt);
         void VisitStmtPrint(Print print);
         void VisitStmtVar(Var var);
+        void VisitStmtWhile(While whileStmt);
         void VisitStmtBlock(Block block);
     }
     public abstract void Accept(Visitor visitor);
@@ -25,6 +29,25 @@ public abstract class Stmt
             visitor.VisitStmtExpression(this);
         }
     };
+
+    public class If : Stmt
+    {
+        public readonly Expr condition;
+        public readonly Stmt thenBranch;
+        public readonly Stmt? elseBranch;
+
+        public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
+        {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+        
+        public override void Accept(Visitor visitor)
+        {
+            visitor.VisitStmtIf(this);
+        }
+    }
 
     public class Print : Stmt
     {
@@ -55,6 +78,23 @@ public abstract class Stmt
         public override void Accept(Visitor visitor)
         {
             visitor.VisitStmtVar(this);
+        }
+    }
+
+    public class While : Stmt
+    {
+        public readonly Expr condition;
+        public readonly Stmt body;
+
+        public While(Expr condition, Stmt body)
+        {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        public override void Accept(Visitor visitor)
+        {
+            visitor.VisitStmtWhile(this);
         }
     }
 

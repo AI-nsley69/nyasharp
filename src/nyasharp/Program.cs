@@ -57,6 +57,11 @@ namespace nyasharp
             // Tokenize
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
+            /* Print tokens for now
+            foreach (var token in tokens)
+            {
+                Console.WriteLine(token.ToString());
+            } */
             // Parse
             var parser = new Parser.Parser(tokens);
             List<Stmt> statements = parser.Parse();
@@ -66,13 +71,6 @@ namespace nyasharp
             _interpreter.interpret(statements);
             
             // Console.WriteLine(new Printer().Print(expressions));
-            
-            /* Print tokens for now
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token.ToString());
-            }
-            */
         }
 
         private static void Report(int line, string where, string message)
@@ -100,9 +98,10 @@ namespace nyasharp
         public static void RuntimeError(RuntimeError error)
         {
             var tmp = new StringBuilder();
-            tmp.Append(error.Message + "\n[line " + error.token.line + "]");
+            tmp.Append("\n[line " + error.token.line + "] " + error.Message);
             var err = new StringWriter(tmp);
             Console.SetError(err);
+            Console.Write(err);
             _hadRuntimeError = true;
         }
     }

@@ -17,9 +17,12 @@ _o_ - not equal to
 +.* - multiplication operator
 -.* - division operator
 
-
+v.v - or operator
+&.& - and operator
+~ - not operator
 
 ^u^ - if statement
+^e^ - else statement
 ^o^ - for loop
 ^w^ - while loop
 :D - function declaration

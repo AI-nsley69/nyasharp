@@ -138,6 +138,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return literal.value;
     }
 
+    public object VisitExpressionLogical(Expr.Logical logical)
+    {
+        object left = Evaluate(logical.left);
+
+        if (logical.op.type == TokenType.Or)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+
+        return Evaluate(logical.right);
+    }
+
     public object VisitExpressionUnary(Expr.Unary unary)
     {
         var right = Evaluate(unary.expr);
@@ -164,6 +180,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Evaluate(stmt.expression);
     }
 
+    public void VisitStmtIf(Stmt.If ifStmt)
+    {
+        if (IsTruthy(ifStmt.condition))
+        {
+            Execute(ifStmt.thenBranch);
+        } else if (ifStmt.elseBranch != null)
+        {
+            Execute(ifStmt.elseBranch);
+        }
+    }
+
     public void VisitStmtPrint(Stmt.Print print)
     {
         object value = Evaluate(print.expression);
@@ -174,6 +201,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     {
         object value = Evaluate(var.initializer);
         _environment.Define(var.name.lexeme, value);
+    }
+
+    public void VisitStmtWhile(Stmt.While whileStmt)
+    {
+        while (IsTruthy(Evaluate(whileStmt.condition)))
+        {
+            Execute(whileStmt.body);
+        }
     }
 
     public void VisitStmtBlock(Stmt.Block block)
@@ -190,6 +225,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     private bool IsTruthy(object obj)
     {
         if (obj == null) return false;
+        if (obj is Expr.Literal && ((Expr.Literal)obj).value is bool b1) return b1;
         if (obj is bool b) return b;
         return true;
     }

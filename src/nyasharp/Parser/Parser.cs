@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design;
+﻿using System.Collections;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Linq.Expressions;
 using Microsoft.VisualBasic.CompilerServices;
@@ -49,9 +50,82 @@ public class Parser
 
     private Stmt Statement()
     {
+        if (Match(TokenType.For)) return ForStatement();
+        if (Match(TokenType.If)) return IfStatement();
         if (Match(TokenType.Print)) return PrintStatement();
+        if (Match(TokenType.While)) return WhileStatement();
         if (Match(TokenType.BlockStart)) return new Stmt.Block(Block());
         return ExpressionStatement();
+    }
+
+    private Stmt ForStatement()
+    {
+        Consume(TokenType.LeftParen, "Expected '(' after '^o^'.");
+        Stmt? initializer;
+        if (Match(TokenType.SemiColon))
+        {
+            initializer = null;
+        } else if (Match(TokenType.Var))
+        {
+            initializer = VarDeclaration();
+        }
+        else
+        {
+            initializer = ExpressionStatement();
+        }
+
+        Expr? condition = null;
+        if (!Check(TokenType.SemiColon))
+        {
+            condition = Expression();
+        }
+
+        Consume(TokenType.SemiColon, "Expected ';' after loop condition");
+
+        Expr? increment = null;
+        if (!Check(TokenType.RightParen))
+        {
+            increment = Expression();
+        }
+
+        Consume(TokenType.RightParen, "Expected ')' after clause");
+        
+        Stmt body = Statement();
+        if (increment != null)
+        {
+            body = new Stmt.Block(new List<Stmt>()
+            {
+                body,
+                new Stmt.Expression(increment)
+            });
+        }
+
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null)
+        {
+            body = new Stmt.Block(new List<Stmt>() {initializer, body});
+        }
+
+        return body;
+    }
+
+    private Stmt IfStatement()
+    {
+        Consume(TokenType.LeftParen, "Expected '(' after '^u^'.");
+        Expr condition = Expression();
+        Consume(TokenType.RightParen, "Expected ')' after if statement.");
+
+        Stmt thenBranch = Statement();
+        Stmt? elseBranch = null;
+
+        if (Match(TokenType.Else))
+        {
+            elseBranch = Statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private Stmt PrintStatement()
@@ -75,6 +149,16 @@ public class Parser
         Consume(TokenType.SemiColon, "Expected ';' after variable declaration");
         return new Stmt.Var(name, initalizer);
     }
+
+    private Stmt WhileStatement()
+    {
+        Consume(TokenType.LeftParen, "Expected '(' after '^w^'");
+        Expr condition = Expression();
+        Consume(TokenType.RightParen, "Expected ')' after condition.");
+        Stmt body = Statement();
+
+        return new Stmt.While(condition, body);
+    }
     
     private Stmt ExpressionStatement() {
         Expr expr = Expression();
@@ -97,7 +181,7 @@ public class Parser
 
     private Expr Assignment()
     {
-        Expr expr = Equality();
+        Expr expr = Or();
 
         if (Match(TokenType.Assign))
         {
@@ -111,6 +195,34 @@ public class Parser
             }
 
             Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private Expr Or()
+    {
+        Expr expr = And();
+
+        while (Match(TokenType.Or))
+        {
+            Token op = Previous();
+            Expr right = And();
+            expr = new Expr.Logical(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr And()
+    {
+        Expr expr = Equality();
+
+        while (Match(TokenType.And))
+        {
+            Token op = Previous();
+            Expr right = Equality();
+            expr = new Expr.Logical(expr, op, right);
         }
 
         return expr;
