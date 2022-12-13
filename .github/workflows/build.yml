@@ -1,0 +1,33 @@
+﻿# Build on pr and push
+name: build
+on: [pull_request, push]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Compile
+        run: |
+          cd ./src/nyasharp
+          if ["$RUNNER_OS" == "Linux"]; then
+             dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
+          elif ["$RUNNER_OS" == "Windows"]
+             dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
+      - name: Capture artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts
+          path: bin/*/publish/nyasharp*

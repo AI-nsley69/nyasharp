@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "94Y5JElzOpeCAcSM6fAnrx70iOfd/PgG7mWl56Zp8aHgAY1pkh3oz1Dd9Uh85lanLsnKf4O+U5pvMVDyP377Qw==",
+  "dgSpecHash": "TvW/OIPHgw0u8n/6ikxaeTC8JoSAiNCegainabiE5tkJMqfgZCZiSMmNdlUbjYQ3dVGq8Bw+w4p+0YFTJ3w73w==",
   "success": true,
   "projectFilePath": "C:\\Users\\20bear\\RiderProjects\\nyasharp\\src\\nyasharp\\nyasharp.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\20bear\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\6.0.11\\microsoft.netcore.app.runtime.win-x64.6.0.11.nupkg.sha512",
+    "C:\\Users\\20bear\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\6.0.11\\microsoft.windowsdesktop.app.runtime.win-x64.6.0.11.nupkg.sha512",
+    "C:\\Users\\20bear\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\6.0.11\\microsoft.aspnetcore.app.runtime.win-x64.6.0.11.nupkg.sha512",
+    "C:\\Users\\20bear\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\6.0.11\\microsoft.netcore.app.crossgen2.win-x64.6.0.11.nupkg.sha512"
+  ],
   "logs": []
 }
