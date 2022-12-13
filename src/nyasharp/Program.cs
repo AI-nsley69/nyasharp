@@ -35,7 +35,7 @@ namespace nyasharp
         private static void RunFile(string path)
         {
             var bytes = File.ReadAllBytes(Path.GetFullPath(path));
-            Run(System.Text.Encoding.Default.GetString(bytes));
+            Run(Encoding.UTF8.GetString(bytes));
         }
 
         private static void RunPrompt()
