@@ -184,6 +184,8 @@ public class Scanner
             Identifier();
         }else
         {
+            // Take care of the pesky BOM character
+            if (c == 0xFEFF) return;
             Program.Error(_line, "Unexpected character: " + c);
         }
     }
