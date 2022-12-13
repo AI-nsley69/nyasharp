@@ -216,8 +216,8 @@ public class Scanner
         }
 
         Advance();
-        
-        var value = GetSubstring();
+        var delta = (_current - 1) - (_start + 1);
+        var value = source.Substring(_start + 1, delta);
         AddToken(TokenType.String, value);
     }
 
