@@ -260,7 +260,7 @@ public class Scanner
         while (IsAlphaNumeric(Peek())) Advance();
         var text = GetSubstring();
         TokenType type;
-        if (keywords.TryGetValue(text, out type));
+        keywords.TryGetValue(text, out type);
         if (type == TokenType.Nothing) type = TokenType.Identifier;
         AddToken(type);
     }

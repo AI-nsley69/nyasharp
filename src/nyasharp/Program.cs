@@ -15,7 +15,7 @@ namespace nyasharp
         {
             if (args.Length > 1)
             {
-                Console.WriteLine("Usage: nyasharp [script]");
+                Console.WriteLine("Usage: nyasharp [script]\n");
                 return 64;
             }
 
@@ -52,7 +52,11 @@ namespace nyasharp
 
         private static void Run(string source)
         {
-            if (_hadError) Environment.Exit(65);
+            if (_hadError)
+            {
+                Console.WriteLine();
+                Environment.Exit(65);
+            }
 
             // Tokenize
             Scanner scanner = new Scanner(source);
@@ -65,8 +69,12 @@ namespace nyasharp
             // Parse
             var parser = new Parser.Parser(tokens);
             List<Stmt> statements = parser.Parse();
-            
-            if (_hadRuntimeError) Environment.Exit(70);
+
+            if (_hadRuntimeError)
+            {
+                Console.WriteLine();
+                Environment.Exit(70);
+            }
             
             _interpreter.interpret(statements);
             

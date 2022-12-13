@@ -28,4 +28,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts
-          path: src/nyasharp/bin/Release/net6.0/*-x64/publish/nyashar*
+          path: | 
+            src/nyasharp/bin/Release/*/*/publish/nyasharp.exe
+            src/nyasharp/bin/Release/*/*/publish/nyasharp
