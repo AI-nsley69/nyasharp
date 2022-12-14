@@ -18,6 +18,13 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             var str = Stringify(s[0]).Replace("l", "w");
             return str.Replace("r", "w");
         }, 1));
+        _globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
+        {
+            var emoticons = new[] { ":3", "c:", "^^", "UwU", "OwO", "^~^" };
+            var rand = new Random();
+            var i = (int)Math.Floor(rand.NextDouble() * emoticons.Length);
+            return " " + emoticons[i];
+        }));
     }
     public void interpret(List<Stmt> statements)
     {
@@ -118,7 +125,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             if (arguments.Count != func.Arity())
             {
                 throw new RuntimeError(call.paren,
-                    "Expected" + func.Arity() + " arguments but got " + arguments.Count + ".");
+                    "Expected " + func.Arity() + " arguments but got " + arguments.Count + ".");
             }
             return func.Call(this, arguments);
         }
