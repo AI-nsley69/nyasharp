@@ -11,7 +11,7 @@ public enum TokenType
     // Semicolon, Dots & Commas
     SemiColon, Dot, Comma,
     // Ops
-    Add, Sub, Mult, Div,
+    Add, Sub, Mult, Div, Mod,
     // Comparison
     Not, NotEqual,
     Assign, Equal,

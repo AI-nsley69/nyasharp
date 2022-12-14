@@ -16,6 +16,7 @@ _o_ - not equal to
 -.- - subtraction operator
 +.* - multiplication operator
 -.* - division operator
+%.% - modulo operator
 
 v.v - or operator
 &.& - and operator

@@ -152,6 +152,11 @@ public class Scanner
                 if (Match('-')) AddToken(TokenType.Sub);
                 else if (Match('*')) AddToken(TokenType.Div);
                 break;
+            // Handle modulo
+            case '%':
+                if (!Match('.')) break;
+                if (Match('%')) AddToken(TokenType.Mod);
+                break;
             // Handle strings
             case '"': String();
                 break;

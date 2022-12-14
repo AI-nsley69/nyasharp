@@ -1,0 +1,13 @@
+﻿:D isPwime(owo) :>
+  ^u^ (owo /o/ 2) c: fawse;
+  ^o^ (>.< nya o/ 2; nya /o/ owo; nya o/ nya +.+ 1) :>
+    ^u^ (owo %.% nya \o/ 0) c: fawse;
+  <:
+  c: twue;
+<:
+
+>.< wimit o/ 100;
+pwint "Fowwoing pwime numbews up to " +.+ wimit;
+^o^ (>.< nya o/ 1; nya /o/ wimit; nya o/ nya +.+ 1) :>
+  ^u^ (isPwime(nya)) pwint nya;
+<:

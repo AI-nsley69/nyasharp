@@ -89,6 +89,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             case TokenType.Mult:
                 CheckNumberOperands(binary.op, left, right);
                 return (double)left * (double)right;
+            case TokenType.Mod:
+                CheckNumberOperands(binary.op, left, right);
+                return (double)left % (double)right;
         }
         // Unreachable
         return null;

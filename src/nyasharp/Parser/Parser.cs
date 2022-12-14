@@ -284,9 +284,23 @@ public class Parser
 
     private Expr Comparison()
     {
-        Expr expr = Term();
+        Expr expr = Mod();
 
         while (Match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual))
+        {
+            Token op = Previous();
+            Expr right = Mod();
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr Mod()
+    {
+        Expr expr = Term();
+
+        while (Match(TokenType.Mod))
         {
             Token op = Previous();
             Expr right = Term();
