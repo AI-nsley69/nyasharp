@@ -1,0 +1,47 @@
+﻿using System.Text;
+
+namespace nyasharp.AST;
+
+public class Printer : Expr.Visitor<String>
+{
+    public string Print(Expr expr)
+    {
+        return expr.Accept<>(this);
+    }
+
+    public string VisitExpressionBinary(Expr.Binary binary)
+    {
+        return Parenthesize(binary.op.lexeme, binary.left, binary.right);
+    }
+
+    public string VisitExpressionGrouping(Expr.Grouping grouping)
+    {
+        return Parenthesize("grouping", grouping.expr);
+    }
+
+    public string VisitExpressionLiteral(Expr.Literal literal)
+    {
+        if (literal.value == null) return "null";
+        return literal.value.ToString();
+    }
+
+    public string VisitExpressionUnary(Expr.Unary unary)
+    {
+        return Parenthesize(unary.op.lexeme, unary.expr);
+    }
+    
+    private string Parenthesize(string name, params Expr[] exprs)
+    {
+        var builder = new StringBuilder();
+        builder.Append('(').Append(name);
+        foreach (var expr in exprs)
+        {
+            builder.Append(' ');
+            builder.Append(expr.Accept(this));
+        }
+
+        builder.Append(')');
+
+        return builder.ToString();
+    }
+}

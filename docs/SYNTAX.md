@@ -16,8 +16,14 @@ _o_ - not equal to
 -.- - subtraction operator
 +.* - multiplication operator
 -.* - division operator
+%.% - modulo operator
+
+v.v - or operator
+&.& - and operator
+~ - not operator
 
 ^u^ - if statement
+^e^ - else statement
 ^o^ - for loop
 ^w^ - while loop
 :D - function declaration
