@@ -7,7 +7,7 @@
 <:
 
 >.< wimit o/ 100;
-pwint "Fowwoing pwime numbews up to " +.+ wimit;
+pwint uwuify("Folloing prime numbers up to " +.+ wimit);
 ^o^ (>.< nya o/ 1; nya /o/ wimit; nya o/ nya +.+ 1) :>
   ^u^ (isPwime(nya)) pwint nya;
 <:
