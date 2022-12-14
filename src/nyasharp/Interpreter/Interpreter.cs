@@ -24,6 +24,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             var i = (int)Math.Floor(rand.NextDouble() * emoticons.Length);
             return " " + emoticons[i];
         }));
+        _globals.Define("inpwut", new NativeFunction("inpwut", (_, s) =>
+        {
+            if (s[0] != null) Console.Write(s[0]);
+            var input = Console.ReadLine();
+            return input;
+        }, 1));
     }
     public void interpret(List<Stmt> statements)
     {
