@@ -1,0 +1,5 @@
+.vs
+.idea
+src/nyasharp/.vs
+src/nyasharp/obj
+src/nyasharp/bin
