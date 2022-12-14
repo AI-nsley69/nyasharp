@@ -5,7 +5,7 @@
   >.< b o/ 1; // var b with the value of 1
   // for loop that creates a variable called n, checks if n is less than 5 and adds 1 to i after each loop
   ^o^ (>.< i o/ 0; i /o/ n; i o/ i +.+ 1) :>
-    // Create a new constant for old, holding the old value
+    // Create a new variable for old, holding the old value
     >.< old o/ a;
     // set the value of a to a + b
     a o/ a +.+ b;
@@ -16,8 +16,8 @@
   c: a;
 <:
 
-// call the fibonacci function with the argument 5 and store the value in a constant called fib
+// call the fibonacci function with the argument 5 and store the value in a variable called fib
 >.< seq o/ 25;
 >.< fib o/ fibonacci(seq);
 // print the fib constant
-pwint "Numbew of fib seqwuence " +.+ seq +.+ " is " +.+ fib;
+pwint uwuify("Number of fib sequence " +.+ seq +.+ " is " +.+ fib +.+ emoticon());

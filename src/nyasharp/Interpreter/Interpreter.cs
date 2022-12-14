@@ -14,7 +14,6 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         _environment = _globals;
         _globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
-            if (s[0] == null) return "";
             var str = Stringify(s[0]).Replace("l", "w");
             return str.Replace("r", "w");
         }, 1));
