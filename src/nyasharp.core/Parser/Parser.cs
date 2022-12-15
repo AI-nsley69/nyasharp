@@ -463,7 +463,7 @@ public class Parser
     
     private ParserError Error(Token token, string message)
     {
-        Program.Error(token, message);
+        core.Error(token, message);
         return new ParserError();
     }
 

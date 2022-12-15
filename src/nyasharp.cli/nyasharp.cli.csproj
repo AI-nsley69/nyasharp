@@ -7,4 +7,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\nyasharp.core\nyasharp.core.csproj" />
+    </ItemGroup>
+
 </Project>

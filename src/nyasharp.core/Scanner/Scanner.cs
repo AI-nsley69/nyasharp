@@ -191,7 +191,7 @@ public class Scanner
         {
             // Take care of the pesky BOM character
             if (c == 0xFEFF) return;
-            Program.Error(_line, "Unexpected character: " + c);
+            core.Error(_line, "Unexpected character: " + c);
         }
     }
 
@@ -240,7 +240,7 @@ public class Scanner
 
         if (IsEof())
         {
-            Program.Error(_line, "Unterminated string.");
+            core.Error(_line, "Unterminated string.");
             return;
         }
 

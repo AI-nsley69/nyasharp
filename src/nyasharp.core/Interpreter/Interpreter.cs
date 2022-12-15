@@ -42,7 +42,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         }
         catch (RuntimeError error)
         {
-            Program.RuntimeError(error);
+            core.RuntimeError(error);
         }
     }
 
