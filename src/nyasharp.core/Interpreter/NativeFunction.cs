@@ -18,7 +18,7 @@ public class NativeFunction : ICallable
         return arity;
     }
 
-    public object? Call(Interpreter interpreter, List<object> args)
+    public object? Call(Interpreter interpreter, List<object?> args)
     {
         return action(interpreter, args);
     }

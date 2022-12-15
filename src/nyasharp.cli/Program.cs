@@ -45,7 +45,24 @@ namespace nyasharp.cli
                 Console.Write("> ");
                 var line = Console.ReadLine();
                 if (line == null) break;
-                core.Run(line);
+                Result? result = null; 
+                try
+                {
+                    result = core.Run(line);
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine(err);
+                }
+
+                if (result == null) continue;
+                if (result.Errors.Count != 0)
+                {
+                    result.Errors.ForEach(err =>
+                    {
+                        Console.WriteLine(err);
+                    });
+                }
             }
         }
     }

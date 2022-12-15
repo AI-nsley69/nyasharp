@@ -15,9 +15,9 @@ public class Function : ICallable
         return declaration.parameters.Count;
     }
 
-    public object? Call(Interpreter interpreter, List<object> args)
+    public object? Call(Interpreter interpreter, List<object?> args)
     {
-        Environment environment = new Environment(interpreter._globals);
+        Environment environment = new Environment(interpreter.Globals);
         for (int i = 0; i < declaration.parameters.Count; i++)
         {
             environment.Define(declaration.parameters[i].lexeme, args[i]);

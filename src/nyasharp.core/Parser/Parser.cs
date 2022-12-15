@@ -1,9 +1,4 @@
-﻿using System.Collections;
-using System.ComponentModel.Design;
-using System.Data;
-using System.Linq.Expressions;
-using Microsoft.VisualBasic.CompilerServices;
-using nyasharp.AST;
+﻿using nyasharp.AST;
 
 namespace nyasharp.Parser;
 
@@ -11,16 +6,16 @@ public class Parser
 {
     private class ParserError : Exception {};
     private readonly List<Token> _tokens;
-    private int _current = 0;
+    private int _current;
 
     public Parser(List<Token> tokens)
     {
         this._tokens = tokens;
     }
 
-    public List<Stmt> Parse()
+    public List<Stmt?> Parse()
     {
-        List<Stmt> statements = new List<Stmt>();
+        List<Stmt?> statements = new List<Stmt?>();
         while (!IsEof())
         {
             statements.Add(Declaration());
@@ -34,7 +29,7 @@ public class Parser
         return Assignment();
     }
 
-    private Stmt Declaration()
+    private Stmt? Declaration()
     {
         try
         {
@@ -95,19 +90,19 @@ public class Parser
         Stmt body = Statement();
         if (increment != null)
         {
-            body = new Stmt.Block(new List<Stmt>()
+            body = new Stmt.Block(new List<Stmt?>()
             {
                 body,
                 new Stmt.Expression(increment)
             });
         }
 
-        if (condition == null) condition = new Expr.Literal(true);
+        condition ??= new Expr.Literal(true);
         body = new Stmt.While(condition, body);
 
         if (initializer != null)
         {
-            body = new Stmt.Block(new List<Stmt>() {initializer, body});
+            body = new Stmt.Block(new List<Stmt?>() {initializer, body});
         }
 
         return body;
@@ -140,7 +135,7 @@ public class Parser
     private Stmt ReturnStatement()
     {
         Token keyword = Previous();
-        Expr value = null;
+        Expr? value = null;
         if (!Check(TokenType.SemiColon))
         {
             value = Expression();
@@ -154,15 +149,15 @@ public class Parser
     {
         Token name = Consume(TokenType.Identifier, "Expected variable name.");
 
-        Expr? initalizer = null;
+        Expr? initializer = null;
 
         if (Match(TokenType.Assign))
         {
-            initalizer = Expression();
+            initializer = Expression();
         }
 
         Consume(TokenType.SemiColon, "Expected ';' after variable declaration");
-        return new Stmt.Var(name, initalizer);
+        return new Stmt.Var(name, initializer);
     }
 
     private Stmt WhileStatement()
@@ -202,13 +197,13 @@ public class Parser
         Consume(TokenType.RightParen, "Expected ')' after parameters.");
 
         Consume(TokenType.BlockStart, "Expected ':>' before " + kind + " body.");
-        List<Stmt> body = Block();
+        List<Stmt?> body = Block();
         return new Stmt.Func(name, parameters, body);
     }
 
-    private List<Stmt> Block()
+    private List<Stmt?> Block()
     {
-        List<Stmt> statements = new List<Stmt>();
+        List<Stmt?> statements = new List<Stmt?>();
 
         while (!Check(TokenType.BlockEnd) && !IsEof())
         {
@@ -228,9 +223,9 @@ public class Parser
             Token equals = Previous();
             Expr value = Assignment();
 
-            if (expr is Expr.Variable)
+            if (expr is Expr.Variable variable)
             {
-                Token name = ((Expr.Variable)expr).name;
+                Token name = variable.name;
                 return new Expr.Assign(name, value);
             }
 

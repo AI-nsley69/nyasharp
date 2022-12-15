@@ -36,9 +36,9 @@ public abstract class Stmt
     {
         public readonly Token name;
         public readonly List<Token> parameters;
-        public readonly List<Stmt> body;
+        public readonly List<Stmt?> body;
 
-        public Func(Token name, List<Token> parameters, List<Stmt> body)
+        public Func(Token name, List<Token> parameters, List<Stmt?> body)
         {
             this.name = name;
             this.parameters = parameters;
@@ -53,10 +53,10 @@ public abstract class Stmt
     public class If : Stmt
     {
         public readonly Expr condition;
-        public readonly Stmt thenBranch;
+        public readonly Stmt? thenBranch;
         public readonly Stmt? elseBranch;
 
-        public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
+        public If(Expr condition, Stmt? thenBranch, Stmt? elseBranch)
         {
             this.condition = condition;
             this.thenBranch = thenBranch;
@@ -120,9 +120,9 @@ public abstract class Stmt
     public class While : Stmt
     {
         public readonly Expr condition;
-        public readonly Stmt body;
+        public readonly Stmt? body;
 
-        public While(Expr condition, Stmt body)
+        public While(Expr condition, Stmt? body)
         {
             this.condition = condition;
             this.body = body;
@@ -136,9 +136,9 @@ public abstract class Stmt
 
     public class Block : Stmt
     {
-        public readonly List<Stmt> statements;
+        public readonly List<Stmt?> statements;
 
-        public Block(List<Stmt> statements)
+        public Block(List<Stmt?> statements)
         {
             this.statements = statements;
         } 

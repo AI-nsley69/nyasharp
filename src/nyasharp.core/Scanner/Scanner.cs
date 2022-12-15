@@ -1,25 +1,23 @@
-﻿using System.Globalization;
-using nyasharp.AST;
-
-namespace nyasharp;
+﻿namespace nyasharp.Scanner;
 
 public class Scanner
 {
-    private readonly string source;
-    private readonly List<Token> tokens = new List<Token>();
-    private int _start = 0;
-    private int _current = 0;
-    private int _tmp = 0;
+    private readonly string _source;
+    private readonly List<Token> _tokens = new();
+    private int _start;
+    private int _current;
     private int _line = 1;
 
-    private readonly Dictionary<string, TokenType> keywords;
+    private readonly Dictionary<string, TokenType> _keywords;
     public Scanner(string source)
     {
-        this.source = source;
-        keywords = new Dictionary<string, TokenType>();
-        keywords.Add("pwint", TokenType.Print);
-        keywords.Add("twue", TokenType.True);
-        keywords.Add("fawse", TokenType.False);
+        this._source = source;
+        _keywords = new Dictionary<string, TokenType>
+        {
+            { "pwint", TokenType.Print },
+            { "twue", TokenType.True },
+            { "fawse", TokenType.False }
+        };
     }
 
     public List<Token> ScanTokens()
@@ -30,8 +28,8 @@ public class Scanner
             ScanToken();
         }
         
-        tokens.Add(new Token(TokenType.EOF, "", null, _line));
-        return tokens;
+        _tokens.Add(new Token(TokenType.EOF, "", null, _line));
+        return _tokens;
     }
 
     private void ScanToken()
@@ -58,9 +56,14 @@ public class Scanner
                 var isMaybeConst = Match('w');
                 if (isMaybeConst || isMaybeVar)
                 {
-                    if (!Match('<')) break;
+                    if (!Match('<'))
+                    {
+                        Default(c);
+                        break;
+                    }
                     AddToken(isMaybeVar ? TokenType.Var : TokenType.Const);
                 }
+                else Default(c);
                 break;
             // Check for assignment
             case 'o':
@@ -69,10 +72,15 @@ public class Scanner
                 break;
             // Next 3 cases are for comparisons
             case '\\':
-                if (!Match('o')) break;
+                if (!Match('o'))
+                {
+                    Default(c);
+                    break;
+                }
                 if (Match('/')) AddToken(TokenType.Equal);
                 else if (Match('_')) AddToken(TokenType.GreaterEqual);
                 else if (Match('\\')) AddToken(TokenType.Greater);
+                else Default(c);
                 break;
             
             case '/':
@@ -82,15 +90,25 @@ public class Scanner
                     while (Peek() != '\n' && !IsEof()) Advance();
                 } else if (Match('o'))
                 {
-                    if (!Match('/')) break;
+                    if (!Match('/'))
+                    {
+                        Default(c);
+                        break;
+                    }
                     AddToken(TokenType.Less);
                 }
+                else Default(c);
                 break;
             
             case '_':
-                if (!Match('o')) break;
+                if (!Match('o'))
+                {
+                    Default(c);
+                    break;
+                }
                 if (Match('_')) AddToken(TokenType.NotEqual);
                 else if (Match('/')) AddToken(TokenType.LessEqual);
+                else Default(c);
                 break;
             
             // For loops, while loops and if statements
@@ -101,23 +119,31 @@ public class Scanner
                 var isWhile = Match('w');
                 if (isIf || isElse || isFor || isWhile)
                 {
-                    if (!Match('^')) break;
+                    if (!Match('^'))
+                    {
+                        Default(c);
+                        break;
+                    }
                     var type = TokenType.Nothing;
                     if (isIf) type = TokenType.If;
                     else if (isElse) type = TokenType.Else;
                     else if (isFor) type = TokenType.For;
                     else if (isWhile) type = TokenType.While;
-                    if (type != TokenType.Nothing) AddToken(type);   
+                    if (type != TokenType.Nothing) AddToken(type);
+                    else Default(c);
                 }
+                else Default(c);
                 break;
             
             case ':':
                 if (Match('D')) AddToken(TokenType.Func);
                 else if (Match('>')) AddToken(TokenType.BlockStart);
+                else Default(c);
                 break;
             
             case '<':
                 if (Match(':')) AddToken(TokenType.BlockEnd);
+                else Default(c);
                 break;
             
             case 'c':
@@ -128,7 +154,11 @@ public class Scanner
             case 'v':
                 if (Match('.'))
                 {
-                    if (!Match('v')) break;
+                    if (!Match('v'))
+                    {
+                        Default(c);
+                        break;
+                    }
                     AddToken(TokenType.Or);
                 } else Default(c);
                 break;
@@ -136,26 +166,45 @@ public class Scanner
             case '&':
                 if (Match('.'))
                 {
-                    if (!Match('&')) break;
+                    if (!Match('&'))
+                    {
+                        Default(c);
+                        break;
+                    }
                     AddToken(TokenType.And);
-                }
+                } else Default(c);
                 break;
             // Next 2 are for Arithmetic ops
             case '+':
-                if (!Match('.')) break;
+                if (!Match('.'))
+                {
+                    Default(c);
+                    break;
+                }
                 if (Match('+')) AddToken(TokenType.Add);
                 else if (Match('*')) AddToken(TokenType.Mult);
+                else Default(c);
                 break;
             
             case '-':
-                if (!Match('.')) break;
+                if (!Match('.'))
+                {
+                    Default(c);
+                    break;
+                }
                 if (Match('-')) AddToken(TokenType.Sub);
                 else if (Match('*')) AddToken(TokenType.Div);
+                else Default(c);
                 break;
             // Handle modulo
             case '%':
-                if (!Match('.')) break;
+                if (!Match('.'))
+                {
+                    Default(c);
+                    break;
+                }
                 if (Match('%')) AddToken(TokenType.Mod);
+                else Default(c);
                 break;
             // Handle strings
             case '"': String();
@@ -185,7 +234,7 @@ public class Scanner
         if (IsDigit(c))
         {
             Number();
-        } else if (isAlpha(c)) {
+        } else if (IsAlpha(c)) {
             Identifier();
         }else
         {
@@ -195,21 +244,10 @@ public class Scanner
         }
     }
 
-    private bool DoubleMatch(char next, char last)
-    {
-        var hasNext = Match(next);
-        _tmp = _current;
-        _current++;
-        var hasLast = Match(last);
-        var check = hasNext && hasLast;
-        if (!check) _current = _tmp;
-        return check;
-    }
-
     private bool Match(char expected)
     {
         if (IsEof()) return false;
-        if (source[_current] != expected) return false;
+        if (_source[_current] != expected) return false;
 
         _current++;
         return true;
@@ -217,17 +255,17 @@ public class Scanner
 
     private char Peek()
     {
-        return IsEof() ? '\0' : source[_current];
+        return IsEof() ? '\0' : _source[_current];
     }
 
     private char PeekNext()
     {
-        return _current + 1 >= source.Length ? '\0' : source[_current + 1];
+        return _current + 1 >= _source.Length ? '\0' : _source[_current + 1];
     }
 
     private char Advance()
     {
-        return source[_current++];
+        return _source[_current++];
     }
 
     private void String()
@@ -246,7 +284,7 @@ public class Scanner
 
         Advance();
         var delta = (_current - 1) - (_start + 1);
-        var value = source.Substring(_start + 1, delta);
+        var value = _source.Substring(_start + 1, delta);
         AddToken(TokenType.String, value);
     }
 
@@ -266,14 +304,13 @@ public class Scanner
     {
         while (IsAlphaNumeric(Peek())) Advance();
         var text = GetSubstring();
-        TokenType type;
-        keywords.TryGetValue(text, out type);
+        _keywords.TryGetValue(text, out var type);
         if (type == TokenType.Nothing) type = TokenType.Identifier;
         AddToken(type);
     }
     private bool IsAlphaNumeric(char c)
     {
-        return IsDigit(c) || isAlpha(c);
+        return IsDigit(c) || IsAlpha(c);
     }
 
     private bool IsDigit(char c)
@@ -281,32 +318,27 @@ public class Scanner
         return c is >= '0' and <= '9';
     }
     
-    private bool isAlpha(char c) {
+    private bool IsAlpha(char c) {
         return (c >= 'a' && c <= 'z') ||
                (c >= 'A' && c <= 'Z') ||
                c == '_';
     }
 
-    private void AddToken(TokenType type)
-    {
-        AddToken(type, null);
-    }
-
-	private void AddToken(TokenType type, object literal)
+    private void AddToken(TokenType type, object? literal = null)
     {
         var text = GetSubstring();
-        tokens.Add(new Token(type, text, literal, _line));
+        _tokens.Add(new Token(type, text, literal, _line));
     }
 
     private string GetSubstring()
     {
         var delta = _current - _start;
-        return source.Substring(_start, delta);
+        return _source.Substring(_start, delta);
     }
 
 
     private bool IsEof()
     {
-        return _current >= source.Length;
+        return _current >= _source.Length;
     }
 }

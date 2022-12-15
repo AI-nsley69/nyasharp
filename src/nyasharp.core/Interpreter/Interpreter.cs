@@ -1,37 +1,35 @@
-﻿using System.IO.Compression;
-using System.Linq.Expressions;
-using nyasharp.AST;
+﻿using nyasharp.AST;
 
 namespace nyasharp.Interpreter;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 {
-    public Environment _globals = new();
-    public Environment _environment;
+    public Environment Globals = new();
+    public Environment Environment;
 
     public Interpreter()
     {
-        _environment = _globals;
-        _globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
+        Environment = Globals;
+        Globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
-            var str = Stringify(s[0]).Replace("l", "w");
+            var str = Stringify(s[0])!.Replace("l", "w");
             return str.Replace("r", "w");
         }, 1));
-        _globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
+        Globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
         {
             var emoticons = new[] { ":3", "c:", "^^", "UwU", "OwO", "^~^" };
             var rand = new Random();
             var i = (int)Math.Floor(rand.NextDouble() * emoticons.Length);
             return " " + emoticons[i];
         }));
-        _globals.Define("inpwut", new NativeFunction("inpwut", (_, s) =>
+        Globals.Define("inpwut", new NativeFunction("inpwut", (_, s) =>
         {
             if (s[0] != null) Console.Write(s[0]);
             var input = Console.ReadLine();
             return input;
         }, 1));
     }
-    public void interpret(List<Stmt> statements)
+    public void Interpret(List<Stmt?> statements)
     {
         try
         {
@@ -46,13 +44,13 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         }
     }
 
-    public string Stringify(object obj)
+    public string? Stringify(object? obj)
     {
         if (obj == null) return "null";
 
         if (obj is double)
         {
-            string text = obj.ToString();
+            string text = obj.ToString() ?? string.Empty;
             if (text.EndsWith(".0"))
             {
                 text = text.Substring(0, text.Length - 2);
@@ -64,18 +62,21 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return obj.ToString();
     }
 
-    public object VisitExpressionAssign(Expr.Assign assign)
+    public object? VisitExpressionAssign(Expr.Assign assign)
     {
-        Object value = Evaluate(assign.value);
-        _environment.Assign(assign.name, value);
+        object? value = Evaluate(assign.value);
+        Environment.Assign(assign.name, value);
         return value;
     }
 
-    public object VisitExpressionBinary(Expr.Binary binary)
+    public object? VisitExpressionBinary(Expr.Binary? binary)
     {
+        if (binary == null) return null;
+        
         var left = Evaluate(binary.left);
         var right = Evaluate(binary.right);
-
+        
+        if (left == null || right == null) return null;
         switch (binary.op.type)
         {
             // Comparisons
@@ -115,15 +116,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return null;
     }
 
-    public object VisitExpressionCall(Expr.Call call)
+    public object? VisitExpressionCall(Expr.Call call)
     {
-        object callee = Evaluate(call.callee);
+        object? callee = Evaluate(call.callee);
 
-        List<object> arguments = new List<object>();
-        foreach (var arg in call.args)
-        {
-            arguments.Add(Evaluate(arg));
-        }
+        List<object?> arguments = new List<object?>();
+        if (call.args != null)
+            foreach (var arg in call.args)
+            {
+                arguments.Add(Evaluate(arg));
+            }
 
         if (callee is ICallable func)
         {
@@ -140,13 +142,13 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         }
     }
     
-    private void CheckNumberOperands(Token op, object left, object right)
+    private void CheckNumberOperands(Token op, object? left, object? right)
     {
         if (left is double && right is double) return;
         throw new RuntimeError(op, "Operands must be numbers");
     }
 
-    private bool IsEqual(object a, object b)
+    private bool IsEqual(object? a, object? b)
     {
         if (a == null && b == null) return true;
         if (a == null) return false;
@@ -154,27 +156,27 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return a.Equals(b);
     }
     
-    public object VisitExpressionGrouping(Expr.Grouping grouping)
+    public object? VisitExpressionGrouping(Expr.Grouping grouping)
     {
         return Evaluate(grouping.expr);
     }
 
-    private object Evaluate(Expr expr)
+    private object? Evaluate(Expr expr)
     {
         return expr.Accept(this);
     }
 
-    private void Execute(Stmt stmt)
+    private void Execute(Stmt? stmt)
     {
-        stmt.Accept(this);
+        stmt?.Accept(this);
     }
 
-    public void ExecuteBlock(List<Stmt> statements, Environment environment)
+    public void ExecuteBlock(List<Stmt?> statements, Environment environment)
     {
-        Environment previous = this._environment;
+        Environment previous = this.Environment;
         try
         {
-            this._environment = environment;
+            this.Environment = environment;
             foreach (var stmt in statements)
             {
                 Execute(stmt);
@@ -182,18 +184,18 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         }
         finally
         {
-            this._environment = previous;
+            this.Environment = previous;
         }
     }
 
-    public object VisitExpressionLiteral(Expr.Literal literal)
+    public object? VisitExpressionLiteral(Expr.Literal literal)
     {
         return literal.value;
     }
 
-    public object VisitExpressionLogical(Expr.Logical logical)
+    public object? VisitExpressionLogical(Expr.Logical logical)
     {
-        object left = Evaluate(logical.left);
+        object? left = Evaluate(logical.left);
 
         if (logical.op.type == TokenType.Or)
         {
@@ -207,9 +209,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return Evaluate(logical.right);
     }
 
-    public object VisitExpressionUnary(Expr.Unary unary)
+    public object? VisitExpressionUnary(Expr.Unary unary)
     {
         var right = Evaluate(unary.expr);
+
+        if (right == null) return null;
 
         switch (unary.op.type)
         {
@@ -223,9 +227,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         return null;
     }
 
-    public object VisitExpressionVariable(Expr.Variable variable)
+    public object? VisitExpressionVariable(Expr.Variable variable)
     {
-        return _environment.Get(variable.name);
+        return Environment.Get(variable.name);
     }
 
     public void VisitStmtExpression(Stmt.Expression stmt)
@@ -236,7 +240,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     public void VisitStmtFunc(Stmt.Func func)
     {
         Function function = new Function(func);
-        _environment.Define(func.name.lexeme, function);
+        Environment.Define(func.name.lexeme, function);
     }
 
     public void VisitStmtIf(Stmt.If ifStmt)
@@ -254,13 +258,13 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     public void VisitStmtPrint(Stmt.Print print)
     {
-        object value = Evaluate(print.expression);
+        object? value = Evaluate(print.expression);
         Console.WriteLine(Stringify(value));
     }
 
     public void VisitStmtReturn(Stmt.Return rtrn)
     {
-        object value = null;
+        object? value = null;
         if (rtrn.value != null) value = Evaluate(rtrn.value);
 
         throw new Return(value);
@@ -268,8 +272,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     public void VisitStmtVar(Stmt.Var var)
     {
-        object value = Evaluate(var.initializer);
-        _environment.Define(var.name.lexeme, value);
+        object? value = Evaluate(var.initializer);
+        Environment.Define(var.name.lexeme, value);
     }
 
     public void VisitStmtWhile(Stmt.While whileStmt)
@@ -282,16 +286,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     public void VisitStmtBlock(Stmt.Block block)
     {
-        ExecuteBlock(block.statements, new Environment(_environment));
+        ExecuteBlock(block.statements, new Environment(Environment));
     }
 
-    private void CheckNumberOperand(Token op, object operand)
+    private void CheckNumberOperand(Token op, object? operand)
     {
         if (operand is double) return;
         throw new RuntimeError(op, "Operand must be a number");
     }
 
-    private bool IsTruthy(object obj)
+    private bool IsTruthy(object? obj)
     {
         if (obj == null) return false;
         if (obj is Expr.Literal && ((Expr.Literal)obj).value is bool b1) return b1;

@@ -3,7 +3,7 @@
 public class Environment
 {
     public readonly Environment? enclosing;
-    private readonly Dictionary<string, object> values = new Dictionary<string, object>();
+    private readonly Dictionary<string, object?> values = new Dictionary<string, object?>();
 
     public Environment()
     {
@@ -15,11 +15,11 @@ public class Environment
         this.enclosing = enclosing;
     }
 
-    public object Get(Token name)
+    public object? Get(Token name)
     {
         if (values.ContainsKey(name.lexeme))
         {
-            object value;
+            object? value;
             values.TryGetValue(name.lexeme, out value);
             return value;
         }
@@ -29,7 +29,7 @@ public class Environment
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
 
-    public void Assign(Token name, object value)
+    public void Assign(Token name, object? value)
     {
         if (values.ContainsKey(name.lexeme))
         {
@@ -46,7 +46,7 @@ public class Environment
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
 
-    public void Define(string name, object value)
+    public void Define(string name, object? value)
     {
         values[name] = value;
     }
