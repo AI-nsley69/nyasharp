@@ -25,6 +25,7 @@ namespace nyasharp
         public static Result Run(string source)
         {
             result.Errors.Clear();
+            result.Value.Clear();
             // Tokenize
             Scanner.Scanner scanner = new Scanner.Scanner(source);
             List<Token> tokens = scanner.ScanTokens();

@@ -24,7 +24,7 @@
         if (Code == null) return;
         var result = core.Run(Code);
 
-        string tmp = "";
+        var tmp = "";
         foreach (var err in result.Errors)
         {
             tmp += err + '\n';
