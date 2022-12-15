@@ -21,7 +21,7 @@ jobs:
           dotnet-version: '6.0.x'
       - name: Compile
         run: |
-          cd ./src/nyasharp
+          cd ./src/nyasharp.cli
           dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true
           dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true
       - name: Capture artifacts
@@ -29,5 +29,5 @@ jobs:
         with:
           name: Artifacts
           path: | 
-            src/nyasharp/bin/Release/*/*/publish/nyasharp.exe
-            src/nyasharp/bin/Release/*/*/publish/nyasharp
+            src/nyasharp.cli/bin/Release/*/*/publish/nyasharp.exe
+            src/nyasharp.cli/bin/Release/*/*/publish/nyasharp
