@@ -4,6 +4,7 @@ using nyasharp.Interpreter;
 
 namespace nyasharp
 {
+    /* 
     public class Result
     {
         public object? Value { get; }
@@ -14,15 +15,16 @@ namespace nyasharp
             this.Errors = errors;
         }
     }
+    */
     public class core
     {
         // Incase we get an error, don't execute the code
         private static Interpreter.Interpreter _interpreter = new Interpreter.Interpreter();
-        // List for errors
-        private static List<string> _errors = new List<string>();
+        
+        public static Result result = new Result();
         public static Result Run(string source)
         {
-            _errors.Clear();
+            result.Errors.Clear();
             // Tokenize
             Scanner.Scanner scanner = new Scanner.Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
@@ -33,12 +35,12 @@ namespace nyasharp
 
             _interpreter.Interpret(statements);
 
-            return new Result(true, _errors);
+            return result;
         }
 
         private static void Report(int line, string where, string message)
         {
-            _errors.Add("[line " + line + "] Error" + where + ": " + message);
+            result.Errors.Add("[line " + line + "] Error" + where + ": " + message);
         }
         
         public static void Error(Token token, string message)
@@ -62,7 +64,7 @@ namespace nyasharp
             var tmp = new StringBuilder();
             tmp.Append("\n[line " + error.token.line + "] " + error.Message);
             var err = new StringWriter(tmp);
-            _errors.Add(err.ToString());
+            result.Errors.Add(err.ToString());
         }
     }
 }

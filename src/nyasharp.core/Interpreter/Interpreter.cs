@@ -12,8 +12,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Environment = Globals;
         Globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
-            var str = Stringify(s[0])!.Replace("l", "w");
-            return str.Replace("r", "w");
+            var str = Stringify(s[0])!.Replace("l", "w").Replace("r", "w");
+            core.result.Value = str;
+            return str;
         }, 1));
         Globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
         {
@@ -259,7 +260,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     public void VisitStmtPrint(Stmt.Print print)
     {
         object? value = Evaluate(print.expression);
-        Console.WriteLine(Stringify(value));
+        core.result.Value = Stringify(value);
+        Console.WriteLine(core.result.Value);
     }
 
     public void VisitStmtReturn(Stmt.Return rtrn)

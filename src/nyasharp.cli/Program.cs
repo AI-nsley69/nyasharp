@@ -56,12 +56,10 @@ namespace nyasharp.cli
                 }
 
                 if (result == null) continue;
+                if (result.Value is string s && s.Length > 0) Console.WriteLine(s);
                 if (result.Errors.Count != 0)
                 {
-                    result.Errors.ForEach(err =>
-                    {
-                        Console.WriteLine(err);
-                    });
+                    result.Errors.ForEach(Console.WriteLine);
                 }
             }
         }
