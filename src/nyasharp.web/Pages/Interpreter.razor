@@ -29,7 +29,10 @@
         {
             tmp += err + '\n';
         }
-        tmp += result.Value;
+        foreach (var v in result.Value)
+        {
+            tmp += v.ToString() + '\n';
+        }
         Output = tmp;
     }
 }

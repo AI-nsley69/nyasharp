@@ -13,7 +13,6 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
             var str = Stringify(s[0])!.Replace("l", "w").Replace("r", "w");
-            core.result.Value = str;
             return str;
         }, 1));
         Globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
@@ -262,8 +261,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     public void VisitStmtPrint(Stmt.Print print)
     {
         object? value = Evaluate(print.expression);
-        core.result.Value = Stringify(value);
-        Console.WriteLine(core.result.Value);
+        if (value != null)
+        {
+            core.result.Value.Add(Stringify(value));   
+        }
+        Console.WriteLine(value);
     }
 
     public void VisitStmtReturn(Stmt.Return rtrn)

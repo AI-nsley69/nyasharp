@@ -2,7 +2,7 @@
 
 public class Result
 {
-    public object? Value { get; set; }
+    public List<object> Value { get; set; }
 
     public List<string> Errors { get; }
 
@@ -10,13 +10,12 @@ public class Result
 
     public Result()
     {
-        this.Value = null;
+        this.Value = new List<object>();
         this.Errors = new List<string>();
     }
 
     public void Update(object? value, bool shouldPrint)
     {
-        this.Value = value;
         this.Print = shouldPrint;
     }
 }
