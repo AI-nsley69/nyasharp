@@ -1,0 +1,35 @@
+﻿@page "/"
+
+<head>
+    <link rel="stylesheet" type="text/css" href="css/interpreter/style.css">
+</head>
+<PageTitle>Nyasharp</PageTitle>
+
+<h1>Interpreter</h1>
+<div class="wrapper">
+    <div class="input">
+        <textarea placeholder="pwint 3 +.+ 3 +.* 3;" value="@Code" @onchange="args => Code = args.Value.ToString()" rows="10"></textarea>
+        <button @onclick="Run">Interpret</button>
+    </div>
+    <div class="input">
+        <textarea value="@Output" rows="10"></textarea>
+    </div>
+</div>
+@code {
+    private string? Code;
+    private string Output;
+
+    private void Run()
+    {
+        if (Code == null) return;
+        var result = core.Run(Code);
+
+        string tmp = "";
+        foreach (var err in result.Errors)
+        {
+            tmp += err + '\n';
+        }
+        tmp += result.Value;
+        Output = tmp;
+    }
+}

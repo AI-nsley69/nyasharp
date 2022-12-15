@@ -164,7 +164,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     private object? Evaluate(Expr expr)
     {
-        return expr.Accept(this);
+        var r = expr.Accept(this);
+        if (r is Expr.Literal l) core.result.Update(l, false);
+        return r;
     }
 
     private void Execute(Stmt? stmt)

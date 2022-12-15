@@ -1,0 +1,28 @@
+﻿body {
+    width: auto;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #f8f8ff;
+}
+body h1 {
+    margin: 5px;
+    text-align: center;
+}
+
+.input {
+    padding: 5px;
+    display: flex;
+    flex-flow: column nowrap;
+    width: 40%;
+}
+
+.input button {
+    margin-top: 5px;
+}
+
+.wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    margin: auto;
+}

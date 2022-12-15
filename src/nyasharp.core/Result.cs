@@ -6,9 +6,17 @@ public class Result
 
     public List<string> Errors { get; }
 
+    public bool Print;
+
     public Result()
     {
         this.Value = null;
         this.Errors = new List<string>();
+    }
+
+    public void Update(object? value, bool shouldPrint)
+    {
+        this.Value = value;
+        this.Print = shouldPrint;
     }
 }
