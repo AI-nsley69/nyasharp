@@ -4,28 +4,14 @@ using nyasharp.Interpreter;
 
 namespace nyasharp
 {
-    /* 
-    public class Result
-    {
-        public object? Value { get; }
-        public List<string> Errors { get; }
-        public Result(object? value, List<string> errors)
-        {
-            this.Value = value;
-            this.Errors = errors;
-        }
-    }
-    */
     public class core
     {
         // Incase we get an error, don't execute the code
-        private static Interpreter.Interpreter _interpreter = new Interpreter.Interpreter();
-        
-        public static Result result = new Result();
-        public static Result Run(string source)
+        private static Interpreter.Interpreter _interpreter = new();
+        public static Events.PrintWorker PrintWorker = new();
+        public static Events.ErrorWorker ErrorWorker = new();
+        public static void Run(string source)
         {
-            result.Errors.Clear();
-            result.Value.Clear();
             // Tokenize
             Scanner.Scanner scanner = new Scanner.Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
@@ -35,13 +21,11 @@ namespace nyasharp
             List<Stmt?> statements = parser.Parse();
 
             _interpreter.Interpret(statements);
-
-            return result;
         }
 
         private static void Report(int line, string where, string message)
         {
-            result.Errors.Add("[line " + line + "] Error" + where + ": " + message);
+            ErrorWorker.Invoke("[line " + line + "] Error" + where + ": " + message);
         }
         
         public static void Error(Token token, string message)
@@ -65,7 +49,7 @@ namespace nyasharp
             var tmp = new StringBuilder();
             tmp.Append("\n[line " + error.token.line + "] " + error.Message);
             var err = new StringWriter(tmp);
-            result.Errors.Add(err.ToString());
+            ErrorWorker.Invoke(err.ToString());
         }
     }
 }

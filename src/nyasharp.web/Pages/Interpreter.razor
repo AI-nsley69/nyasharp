@@ -24,22 +24,36 @@
 
 @code {
     private string? Code;
-    private string Output;
+    private static string Output = "";
 
     private void Run()
     {
         if (Code == null) return;
-        var result = core.Run(Code);
+        Output = "";
+        AttachEvents();
+        core.Run(Code);
+        DetachEvents();
+    }
 
-        var tmp = "";
-        foreach (var err in result.Errors)
-        {
-            tmp += err + '\n';
-        }
-        foreach (var v in result.Value)
-        {
-            tmp += v.ToString() + '\n';
-        }
-        Output = tmp;
+    private static void AttachEvents()
+    {
+        core.PrintWorker.OnPrint += WorkerPrint;
+        core.ErrorWorker.OnError += WorkerError;
+    }
+
+    private static void DetachEvents()
+    {
+        core.PrintWorker.OnPrint -= WorkerPrint;
+        core.ErrorWorker.OnError -= WorkerError;
+    }
+
+    private static void WorkerPrint(string str)
+    {
+        Output += str + "\n";
+    }
+
+    private static void WorkerError(string err)
+    {
+        Output += err + "\n";
     }
 }

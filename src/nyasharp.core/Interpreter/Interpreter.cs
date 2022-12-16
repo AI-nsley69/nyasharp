@@ -295,7 +295,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         object? value = Evaluate(print.expression);
         if (value != null)
         {
-            core.result.Value.Add(Stringify(value));   
+            core.PrintWorker.Invoke(Stringify(value));
         }
         // Console.WriteLine(value);
     }

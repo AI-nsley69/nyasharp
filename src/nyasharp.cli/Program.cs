@@ -34,38 +34,53 @@ namespace nyasharp.cli
      
         private static void RunFile(string path)
         {
+            AttachEvents();
             var bytes = File.ReadAllBytes(Path.GetFullPath(path));
-            core.Run(Encoding.UTF8.GetString(bytes));
+            Run(Encoding.UTF8.GetString(bytes));
+            DetachEvents();
         }
 
         private static void RunPrompt()
         {
+            AttachEvents();
             for (;;)
             {
                 Console.Write("> ");
                 var line = Console.ReadLine();
                 if (line == null) break;
-                Result? result = null; 
-                try
-                {
-                    result = core.Run(line);
-                }
-                catch (Exception err)
-                {
-                    Console.WriteLine(err);
-                }
-
-                if (result == null) continue;
-                if (result.Errors.Count != 0)
-                {
-                    result.Errors.ForEach(Console.WriteLine);
-                }
-
-                if (result.Value.Count != 0)
-                {
-                    result.Value.ForEach(Console.WriteLine);
-                }
+                Run(line);
             }
+            DetachEvents();
+        }
+
+        private static void Run(string code)
+        {
+            core.Run(code);
+        }
+
+        private static void AttachEvents()
+        {
+            core.PrintWorker.OnPrint += WorkerPrint;
+            core.ErrorWorker.OnError += WorkerError;
+        }
+
+        private static void DetachEvents()
+        {
+            core.PrintWorker.OnPrint -= WorkerPrint;
+            core.ErrorWorker.OnError -= WorkerError;
+        }
+
+        private static void WorkerPrint(string str)
+        {
+            Console.WriteLine(str);
+        }
+
+        private static void WorkerError(string str)
+        {
+            var tmp = new StringBuilder(str);
+            var err = new StringWriter(tmp);
+            Console.SetError(err);
+            Console.WriteLine(err);
         }
     }
 }
