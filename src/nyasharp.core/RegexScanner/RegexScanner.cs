@@ -16,7 +16,7 @@ namespace nyasharp.Scanner
             foreach (Match match in matches) 
             {
                 //find which alternative was found and translate it to Token object
-                if (AddIf(tokens, match, "comment",     TokenType.Null          )) { continue; }
+                if (AddIf(tokens, match, "comment",     TokenType.CommentLStart )) { continue; }
                 if (AddIf(tokens, match, "asign",       TokenType.Assign        )) { continue; }
                 if (AddIf(tokens, match, "const",       TokenType.Const         )) { continue; }
                 if (AddIf(tokens, match, "var",         TokenType.Var           )) { continue; }
@@ -51,7 +51,7 @@ namespace nyasharp.Scanner
                 if (AddIf(tokens, match, "false",       TokenType.False         )) { continue; }
                 if (AddIf(tokens, match, "print",       TokenType.Print         )) { continue; }
                 if (AddIf(tokens, match, "iden",        TokenType.Identifier    )) { continue; }
-                if (AddIf(tokens, match, "invalid",     TokenType.Null          )) { continue; }
+                if (AddIf(tokens, match, "invalid",     TokenType.Invalid       )) { continue; }
             }
             return tokens;
         }
