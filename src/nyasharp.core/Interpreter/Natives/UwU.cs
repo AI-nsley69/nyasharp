@@ -15,7 +15,7 @@ public class UwU
             char current = txt[i];
             char next = txt[i + 1];
 
-            if (!IsVowel(previous) && !IsVowel(next) && current == 'o' && !(char.IsWhiteSpace(next) || next == txt[^1]))
+            if (!IsVowel(previous) && !IsVowel(next) && current == 'o' && !(char.IsWhiteSpace(next) || next == txt[^1]) && !char.IsWhiteSpace(previous))
             {
                 tmp = tmp.Replace(previous + "o" + next, previous + "u" + next);
             }
@@ -25,7 +25,6 @@ public class UwU
         var tmp1 = txt.Split(" ");
         foreach (var str in tmp1)
         {
-            Console.WriteLine("Word: " + str + " Len: " + str.Length);
             if (str.EndsWith('e') && str.Length > 4) txt = txt.Replace(str, str.Substring(0, str.Length - 1));
         }
         
