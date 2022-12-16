@@ -13,12 +13,14 @@ body h1 {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
-    margin-left: 100px;
+    margin-left: auto;
     font-size: 20px;
 }
 
 .helpful-links a {
     text-decoration: none;
+    margin: 0 3px; 
+    color: #ffecb5;
 }
 
 .helpful-links a:hover {
