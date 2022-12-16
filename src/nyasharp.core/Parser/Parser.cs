@@ -336,7 +336,7 @@ public class Parser
 
     private Expr Unary()
     {
-        if (Match(TokenType.Sub, TokenType.Sub))
+        if (Match(TokenType.Not, TokenType.Sub))
         {
             Token op = Previous();
             Expr right = Unary();
