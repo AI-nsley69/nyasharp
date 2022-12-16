@@ -1,6 +1,6 @@
 ﻿namespace nyasharp.Scanner;
 
-public class Scanner
+public class Scanner : IScanner
 {
     private readonly string _source;
     private readonly List<Token> _tokens = new();
@@ -20,14 +20,14 @@ public class Scanner
         };
     }
 
-    public List<Token> ScanTokens()
+    public List<Token> ScanTokens(string source)
     {
         while (!IsEof())
         {
             _start = _current;
             ScanToken();
         }
-        
+
         _tokens.Add(new Token(TokenType.EOF, "", null, _line));
         return _tokens;
     }
@@ -38,17 +38,22 @@ public class Scanner
         switch (c)
         {
             // Check for parentheses
-            case '(': AddToken(TokenType.LeftParen);
+            case '(':
+                AddToken(TokenType.LeftParen);
                 break;
-            case ')': AddToken(TokenType.RightParen);
+            case ')':
+                AddToken(TokenType.RightParen);
                 break;
             // Check for dots and comma
-            case ',': AddToken(TokenType.Comma);
+            case ',':
+                AddToken(TokenType.Comma);
                 break;
-            case '.': AddToken(TokenType.Dot);
+            case '.':
+                AddToken(TokenType.Dot);
                 break;
             // Check for not operator
-            case '~': AddToken(TokenType.Not);
+            case '~':
+                AddToken(TokenType.Not);
                 break;
             // Check for var and const declaration
             case '>':
@@ -82,13 +87,14 @@ public class Scanner
                 else if (Match('\\')) AddToken(TokenType.Greater);
                 else Default(c);
                 break;
-            
+
             case '/':
                 // Discard comments
                 if (Match('/'))
                 {
                     while (Peek() != '\n' && !IsEof()) Advance();
-                } else if (Match('o'))
+                }
+                else if (Match('o'))
                 {
                     if (!Match('/'))
                     {
@@ -99,7 +105,7 @@ public class Scanner
                 }
                 else Default(c);
                 break;
-            
+
             case '_':
                 if (!Match('o'))
                 {
@@ -110,7 +116,7 @@ public class Scanner
                 else if (Match('/')) AddToken(TokenType.LessEqual);
                 else Default(c);
                 break;
-            
+
             // For loops, while loops and if statements
             case '^':
                 var isIf = Match('u');
@@ -134,18 +140,18 @@ public class Scanner
                 }
                 else Default(c);
                 break;
-            
+
             case ':':
                 if (Match('D')) AddToken(TokenType.Func);
                 else if (Match('>')) AddToken(TokenType.BlockStart);
                 else Default(c);
                 break;
-            
+
             case '<':
                 if (Match(':')) AddToken(TokenType.BlockEnd);
                 else Default(c);
                 break;
-            
+
             case 'c':
                 if (Match(':')) AddToken(TokenType.Return);
                 else Default(c);
@@ -160,7 +166,8 @@ public class Scanner
                         break;
                     }
                     AddToken(TokenType.Or);
-                } else Default(c);
+                }
+                else Default(c);
                 break;
             // Check for AND
             case '&':
@@ -172,7 +179,8 @@ public class Scanner
                         break;
                     }
                     AddToken(TokenType.And);
-                } else Default(c);
+                }
+                else Default(c);
                 break;
             // Next 2 are for Arithmetic ops
             case '+':
@@ -185,7 +193,7 @@ public class Scanner
                 else if (Match('*')) AddToken(TokenType.Mult);
                 else Default(c);
                 break;
-            
+
             case '-':
                 if (!Match('.'))
                 {
@@ -207,18 +215,20 @@ public class Scanner
                 else Default(c);
                 break;
             // Handle strings
-            case '"': String();
+            case '"':
+                String();
                 break;
-            
-            case ';': AddToken(TokenType.SemiColon);
+
+            case ';':
+                AddToken(TokenType.SemiColon);
                 break;
-            
+
             case ' ':
             case '\r':
             case '\t':
                 // Ignore whitespace.
                 break;
-            
+
             case '\n':
                 _line++;
                 break;
@@ -234,9 +244,12 @@ public class Scanner
         if (IsDigit(c))
         {
             Number();
-        } else if (IsAlpha(c)) {
+        }
+        else if (IsAlpha(c))
+        {
             Identifier();
-        }else
+        }
+        else
         {
             // Take care of the pesky BOM character
             if (c == 0xFEFF) return;
@@ -296,7 +309,7 @@ public class Scanner
             Advance();
             while (IsDigit(Peek())) Advance();
         }
-        
+
         AddToken(TokenType.Number, double.Parse(GetSubstring()));
     }
 
@@ -317,8 +330,9 @@ public class Scanner
     {
         return c is >= '0' and <= '9';
     }
-    
-    private bool IsAlpha(char c) {
+
+    private bool IsAlpha(char c)
+    {
         return (c >= 'a' && c <= 'z') ||
                (c >= 'A' && c <= 'Z') ||
                c == '_';
