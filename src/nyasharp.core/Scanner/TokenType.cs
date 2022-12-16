@@ -29,4 +29,10 @@ public enum TokenType
     Print, 
     
     EOF,
+
+    // basically a "//"
+    CommentLStart,
+    //used when the tokenisation fail starting from a character. this character is added as an invalid token
+    Invalid, 
+
 }
