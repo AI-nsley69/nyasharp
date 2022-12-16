@@ -19,6 +19,8 @@ public enum TokenType
     Less, LessEqual,
     // Literals
     Identifier, String, Number,
+    // defines a literal type keyword
+    LiteralString, LiteralNumber, LiteralBool, LiteralNull,
     // Keywords
     And, Or,  Null,
     Class, Func, Return, For, While, If,
@@ -26,5 +28,5 @@ public enum TokenType
     Var, Const,
     Print, 
     
-    EOF
+    EOF,
 }

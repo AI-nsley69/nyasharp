@@ -16,7 +16,11 @@ public class Scanner
         {
             { "pwint", TokenType.Print },
             { "twue", TokenType.True },
-            { "fawse", TokenType.False }
+            { "fawse", TokenType.False }, 
+            { "Numbew", TokenType.LiteralNumber },
+            { "Stwing", TokenType.LiteralString },
+            { "Boowean", TokenType.LiteralBool },
+            { "nuww", TokenType.LiteralNull }
         };
     }
 
