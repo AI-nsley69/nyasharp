@@ -9,6 +9,28 @@ body h1 {
     text-align: center;
 }
 
+.helpful-links {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    margin-left: auto;
+    font-size: 20px;
+}
+
+.helpful-links a {
+    text-decoration: none;
+    margin: 0 3px; 
+    color: #ffecb5;
+}
+
+.helpful-links a:hover {
+    transform: scale(1.02);
+}
+
+.helpful-links a:active {
+    transform: scale(0.98);
+}
+
 .input {
     padding: 5px;
     display: flex;

@@ -1,4 +1,6 @@
-﻿using nyasharp.AST;
+﻿using System.Linq.Expressions;
+using nyasharp.AST;
+using nyasharp.Interpreter.Natives;
 
 namespace nyasharp.Interpreter;
 
@@ -12,7 +14,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Environment = Globals;
         Globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
-            var str = Stringify(s[0])!.Replace("l", "w").Replace("r", "w");
+            var str = UwU.uwuify(Stringify(s[0])!);
             return str;
         }, 1));
         Globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>
@@ -27,6 +29,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             if (s[0] != null) Console.Write(s[0]);
             var input = Console.ReadLine();
             return input;
+        }, 1));
+        Globals.Define("typeof", new NativeFunction("typeof", (_, n) =>
+        {
+            var type = n[0];
+            return WhichType(type);
         }, 1));
     }
     public void Interpret(List<Stmt?> statements)
@@ -46,8 +53,21 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     public string? Stringify(object? obj)
     {
-        if (obj == null) return "null";
-
+        if (obj == null) return "nuww";
+        if (obj is TokenType type)
+        {
+            switch (type)
+            {
+                case TokenType.LiteralNumber:
+                    return "Numbew";
+                case TokenType.LiteralString:
+                    return "Stwing";
+                case TokenType.LiteralBool:
+                    return "Boowean";
+                case TokenType.LiteralNull:
+                    return "nuww";
+            }
+        }
         if (obj is double)
         {
             string text = obj.ToString() ?? string.Empty;
@@ -111,6 +131,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
             case TokenType.Mod:
                 CheckNumberOperands(binary.op, left, right);
                 return (double)left % (double)right;
+
         }
         // Unreachable
         return null;
@@ -142,6 +163,18 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         }
     }
     
+    private TokenType? WhichType(object? type)
+    {
+        return type switch
+        {
+            null => TokenType.LiteralNull,
+            string => TokenType.LiteralString,
+            bool => TokenType.LiteralBool,
+            double => TokenType.LiteralNumber,
+            _ => null
+        };
+    }
+
     private void CheckNumberOperands(Token op, object? left, object? right)
     {
         if (left is double && right is double) return;
@@ -164,7 +197,6 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
     private object? Evaluate(Expr expr)
     {
         var r = expr.Accept(this);
-        if (r is Expr.Literal l) core.result.Update(l, false);
         return r;
     }
 
@@ -265,7 +297,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         {
             core.result.Value.Add(Stringify(value));   
         }
-        Console.WriteLine(value);
+        // Console.WriteLine(value);
     }
 
     public void VisitStmtReturn(Stmt.Return rtrn)

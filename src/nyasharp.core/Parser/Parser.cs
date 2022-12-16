@@ -1,4 +1,5 @@
-﻿using nyasharp.AST;
+﻿using System.Linq.Expressions;
+using nyasharp.AST;
 
 namespace nyasharp.Parser;
 
@@ -389,6 +390,11 @@ public class Parser
         if (Match(TokenType.False)) return new Expr.Literal(false);
         if (Match(TokenType.True)) return new Expr.Literal(true);
         if (Match(TokenType.Null)) return new Expr.Literal(null);
+
+        if (Match(TokenType.LiteralBool)) return new Expr.Literal(TokenType.LiteralBool);
+        if (Match(TokenType.LiteralNull)) return new Expr.Literal(TokenType.LiteralNull);
+        if (Match(TokenType.LiteralNumber)) return new Expr.Literal(TokenType.LiteralNumber);
+        if (Match(TokenType.LiteralString)) return new Expr.Literal(TokenType.LiteralNumber);
 
         if (Match(TokenType.Number, TokenType.String))
         {
