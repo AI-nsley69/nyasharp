@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Mime;
+using System.Text.RegularExpressions;
 
 namespace nyasharp.Interpreter.Natives;
 
@@ -14,18 +15,20 @@ public class UwU
             char current = txt[i];
             char next = txt[i + 1];
 
-            if (!IsVowel(previous) && !IsVowel(next) && current == 'o')
+            if (!IsVowel(previous) && !IsVowel(next) && current == 'o' && !(char.IsWhiteSpace(next) || next == txt[^1]))
             {
                 tmp = tmp.Replace(previous + "o" + next, previous + "u" + next);
-            }
-            
-            if (!IsVowel(previous) && current == 'e' && (char.IsWhiteSpace(next) || next == txt[^1]))
-            {
-                tmp = tmp.Replace((previous + "e" + next), previous.ToString() + next);
             }
         }
 
         txt = tmp;
+        var tmp1 = txt.Split(" ");
+        foreach (var str in tmp1)
+        {
+            Console.WriteLine("Word: " + str + " Len: " + str.Length);
+            if (str.EndsWith('e') && str.Length > 4) txt = txt.Replace(str, str.Substring(0, str.Length - 1));
+        }
+        
         
         string[,] table = { { "r", "w" }, { "l", "w" }, { "you", "chu" } };
         for (var i = 0; i < table.Length / 2; i++)
