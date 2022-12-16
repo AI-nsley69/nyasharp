@@ -12,7 +12,7 @@ Then you can run the shell interface with `nyasharp` or run a file with `nyashar
 You can build the CLI app with a few simple commands. Make sure you have `git` and `dotnet` version 7.0 installed.
 ```
 git clone https://github.com/AI-nsley69/nyasharp
-cd src/nyasharp.cli
+cd nyasharp/src/nyasharp.cli
 dotnet publish -C Release -p:PublishSingleFile=true --self-contained true
 ```
 This will produce a single file that is self contained.
