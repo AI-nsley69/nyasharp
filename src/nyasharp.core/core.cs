@@ -13,14 +13,24 @@ namespace nyasharp
         public static void Run(string source)
         {
             // Tokenize
-            Scanner.Scanner scanner = new Scanner.Scanner(source);
-            List<Token> tokens = scanner.ScanTokens();
-            
+            var tokens = Tokenize(source);
+
             // Parse
-            var parser = new Parser.Parser(tokens);
-            List<Stmt?> statements = parser.Parse();
+            var statements = Parse(tokens);
 
             _interpreter.Interpret(statements);
+        }
+
+        public static List<Token> Tokenize(string source)
+        {
+            Scanner.Scanner scanner = new Scanner.Scanner(source);
+            return scanner.ScanTokens();
+        }
+
+        public static List<Stmt?> Parse(List<Token> tokens)
+        {
+            var parser = new Parser.Parser(tokens);
+            return parser.Parse();
         }
 
         private static void Report(int line, string where, string message)
