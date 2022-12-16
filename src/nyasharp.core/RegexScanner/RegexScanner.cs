@@ -12,9 +12,10 @@ namespace nyasharp.Scanner
         public List<Token> ScanTokens(string source)
         {
             List<Token> tokens = new();
-            MatchCollection matches = pattern.Matches(source);
-            foreach (Match match in matches)
+            MatchCollection matches = pattern.Matches(source); //parse all tokens to matches
+            foreach (Match match in matches) 
             {
+                //find which alternative was found and translate it to Token object
                 if (AddIf(tokens, match, "comment",     TokenType.Null          )) { continue; }
                 if (AddIf(tokens, match, "asign",       TokenType.Assign        )) { continue; }
                 if (AddIf(tokens, match, "const",       TokenType.Const         )) { continue; }
@@ -54,7 +55,7 @@ namespace nyasharp.Scanner
             }
             return tokens;
         }
-
+        //compact test and add
         private static bool AddIf(List<Token> tokens,Match match,string name,TokenType tkt)
         {
             Group gr = match.Groups[name];
@@ -66,6 +67,13 @@ namespace nyasharp.Scanner
             return false;
         }
 
+        // regex that match any of the tokens
+        // and asign it to it own named capture group
+        // its absurdly not optimal but it make the code very compact
+        // and easily scallable.
+        // ordering is important, especially keywords, they have to come
+        // before identifiers so that they are parsed as keyword rather
+        // than as identifiers
         private readonly static Regex pattern = new(@"
 [\n\t ]* #catching any whitespace
 (?:
