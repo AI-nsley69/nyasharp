@@ -48,3 +48,21 @@ body h1 {
     justify-content: center;
     margin: auto;
 }
+
+.input button {
+    border-radius: 10px;
+    background-color: #00bfff;
+    border: none;
+    width: 70%;
+    margin-left: 15%;
+    margin-top: 7px;
+}
+
+.input button:hover {
+    background-color: #008ccc;
+    transform: scale(1.02);
+}
+
+.input button:active {
+    transform: scale(0.98);
+}
