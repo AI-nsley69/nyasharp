@@ -38,6 +38,18 @@ body h1 {
     width: 40%;
 }
 
+.input textarea {
+    background-color: #ffffff10;
+    color: #80dd80;
+    border: none;
+    border-radius: 10px;
+    padding: 3%;
+}
+
+.input textarea:focus {
+    border: none;
+}
+
 .input button {
     margin-top: 5px;
 }
