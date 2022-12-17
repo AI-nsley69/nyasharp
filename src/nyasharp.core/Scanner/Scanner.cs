@@ -16,7 +16,7 @@ public class Scanner : IScanner
         {
             { "pwint", TokenType.Print },
             { "twue", TokenType.True },
-            { "fawse", TokenType.False }, 
+            { "fawse", TokenType.False },
             { "Numbew", TokenType.LiteralNumber },
             { "Stwing", TokenType.LiteralString },
             { "Boowean", TokenType.LiteralBool },
@@ -36,93 +36,100 @@ public class Scanner : IScanner
         return _tokens;
     }
 
+    const char LEFT_PAR = '(';
+    const char RIGHTPAR = ')';
+    const char COMMA___ = ',';
+    const char DOT_____ = '.';
+    const char NOT_____ = '~';
+    const char VAR1____ = '>';
+    const char ASIGN1__ = 'o';
+    const char COMP_OP1 = '\\';
+    const char COMP_OP2 = '/';
+    const char COMP_OP3 = '_';
+    const char FLOW1___ = '^';
+    const char BLOCK_ST = ':';
+    const char BLOCKEND = '<';
+    const char RETURN__ = 'c';
+    const char OR______ = 'v';
+    const char AND_____ = '&';
+    const char PLUS____ = '+';
+    const char MINUS___ = '-';
+    const char MODULO__ = '%';
+    const char STRING__ = '"';
+    const char LINE_END = ';';
+    const char SPACE___ = ' ';
+    const char RCHARIOT = '\r';
+    const char TAB_____ = '\t';
+    const char NEW_LINE = '\n';
+
+
+    private static bool Then(Action ac)
+    {
+        ac();
+        return true;
+    }
+    private bool AddTk(TokenType type) => Then(() => AddToken(type));
+
+
     private void ScanToken()
     {
         var c = Advance();
-        switch (c)
+
+        //each block has to return a value because its how that switch syntax work
+        //but fuck case break syntax
+        _ = c switch 
         {
-            // Check for parentheses
-            case '(':
-                AddToken(TokenType.LeftParen);
-                break;
-            case ')':
-                AddToken(TokenType.RightParen);
-                break;
-            // Check for dots and comma
-            case ',':
-                AddToken(TokenType.Comma);
-                break;
-            case '.':
-                AddToken(TokenType.Dot);
-                break;
-            // Check for not operator
-            case '~':
-                AddToken(TokenType.Not);
-                break;
-            // Check for var and const declaration
-            case '>':
+            LEFT_PAR => AddTk(TokenType.LeftParen),
+            RIGHTPAR => AddTk(TokenType.RightParen),
+            COMMA___ => AddTk(TokenType.Comma),
+            DOT_____ => AddTk(TokenType.Dot),
+            NOT_____ => AddTk(TokenType.Not),
+            VAR1____ => Then(() => // Check for var and const declaration
+            {
                 var isMaybeVar = Match('.');
                 var isMaybeConst = Match('w');
                 if (isMaybeConst || isMaybeVar)
                 {
-                    if (!Match('<'))
-                    {
-                        Default(c);
-                        break;
-                    }
-                    AddToken(isMaybeVar ? TokenType.Var : TokenType.Const);
+                    if (!Match('<')) { Default(c); }
+                    else { AddToken(isMaybeVar ? TokenType.Var : TokenType.Const); }
                 }
-                else Default(c);
-                break;
-            // Check for assignment
-            case 'o':
-                if (Match('/')) AddToken(TokenType.Assign);
-                else Default(c);
-                break;
-            // Next 3 cases are for comparisons
-            case '\\':
-                if (!Match('o'))
-                {
-                    Default(c);
-                    break;
-                }
-                if (Match('/')) AddToken(TokenType.Equal);
-                else if (Match('_')) AddToken(TokenType.GreaterEqual);
-                else if (Match('\\')) AddToken(TokenType.Greater);
-                else Default(c);
-                break;
-
-            case '/':
-                // Discard comments
-                if (Match('/'))
+                else { Default(c); }
+            }),
+            ASIGN1__ => Then(() => // Check for assignment
+            {
+                if (Match('/')) { AddToken(TokenType.Assign); }
+                else { Default(c); }
+            }),
+            COMP_OP1 => Then(() => // Next 3 cases are for comparisons
+            {
+                if (!Match('o')) { Default(c); return; }
+                if (Match('/')) { AddToken(TokenType.Equal); }
+                else if (Match('_')) { AddToken(TokenType.GreaterEqual); }
+                else if (Match('\\')) { AddToken(TokenType.Greater); }
+                else { Default(c); }
+            }),
+            COMP_OP2 => Then(() =>
+            {
+                if (Match('/')) // Discard comments
                 {
                     while (Peek() != '\n' && !IsEof()) Advance();
                 }
                 else if (Match('o'))
                 {
-                    if (!Match('/'))
-                    {
-                        Default(c);
-                        break;
-                    }
-                    AddToken(TokenType.Less);
+                    if (!Match('/')) { Default(c); }
+                    else { AddToken(TokenType.Less); }
                 }
-                else Default(c);
-                break;
-
-            case '_':
-                if (!Match('o'))
-                {
-                    Default(c);
-                    break;
-                }
-                if (Match('_')) AddToken(TokenType.NotEqual);
-                else if (Match('/')) AddToken(TokenType.LessEqual);
-                else Default(c);
-                break;
-
-            // For loops, while loops and if statements
-            case '^':
+                else { Default(c); }
+            }),
+            COMP_OP3 => Then(() =>
+            {
+                if (!Match('o')) { Default(c); }
+                else if (Match('_')) { AddToken(TokenType.NotEqual); }
+                else if (Match('/')) { AddToken(TokenType.LessEqual); }
+                else { Default(c); }
+            }),
+            FLOW1___ => Then(() => // For loops, while loops and if statements
+            {
                 var isIf = Match('u');
                 var isElse = Match('e');
                 var isFor = Match('o');
@@ -132,115 +139,80 @@ public class Scanner : IScanner
                     if (!Match('^'))
                     {
                         Default(c);
-                        break;
+                        return;
                     }
                     var type = TokenType.Nothing;
-                    if (isIf) type = TokenType.If;
-                    else if (isElse) type = TokenType.Else;
-                    else if (isFor) type = TokenType.For;
-                    else if (isWhile) type = TokenType.While;
-                    if (type != TokenType.Nothing) AddToken(type);
-                    else Default(c);
+                    if (isIf) { type = TokenType.If; }
+                    else if (isElse) { type = TokenType.Else; }
+                    else if (isFor) { type = TokenType.For; }
+                    else if (isWhile) { type = TokenType.While; }
+                    if (type != TokenType.Nothing) { AddToken(type); }
+                    else { Default(c); }
                 }
-                else Default(c);
-                break;
-
-            case ':':
+                else { Default(c); }
+            }),
+            BLOCK_ST => Then(() =>
+            {
                 if (Match('D')) AddToken(TokenType.Func);
                 else if (Match('>')) AddToken(TokenType.BlockStart);
-                else Default(c);
-                break;
-
-            case '<':
+                else { Default(c); }
+            }),
+            BLOCKEND => Then(() =>
+            {
                 if (Match(':')) AddToken(TokenType.BlockEnd);
-                else Default(c);
-                break;
-
-            case 'c':
+                else { Default(c); }
+            }),
+            RETURN__ => Then(() =>
+            {
                 if (Match(':')) AddToken(TokenType.Return);
-                else Default(c);
-                break;
-            // Check for OR
-            case 'v':
+                else { Default(c); }
+            }),
+            OR______ => Then(() => // Check for OR
+            {
                 if (Match('.'))
                 {
-                    if (!Match('v'))
-                    {
-                        Default(c);
-                        break;
-                    }
-                    AddToken(TokenType.Or);
+                    if (!Match('v')) { Default(c); }
+                    else { AddToken(TokenType.Or); }
                 }
-                else Default(c);
-                break;
-            // Check for AND
-            case '&':
+                else { Default(c); }
+            }),
+            AND_____ => Then(() => // Check for AND
+            {
                 if (Match('.'))
                 {
-                    if (!Match('&'))
-                    {
-                        Default(c);
-                        break;
-                    }
-                    AddToken(TokenType.And);
+                    if (!Match('&')) { Default(c); }
+                    else { AddToken(TokenType.And); }
                 }
-                else Default(c);
-                break;
-            // Next 2 are for Arithmetic ops
-            case '+':
-                if (!Match('.'))
-                {
-                    Default(c);
-                    break;
-                }
-                if (Match('+')) AddToken(TokenType.Add);
-                else if (Match('*')) AddToken(TokenType.Mult);
-                else Default(c);
-                break;
-
-            case '-':
-                if (!Match('.'))
-                {
-                    Default(c);
-                    break;
-                }
-                if (Match('-')) AddToken(TokenType.Sub);
-                else if (Match('*')) AddToken(TokenType.Div);
-                else Default(c);
-                break;
-            // Handle modulo
-            case '%':
-                if (!Match('.'))
-                {
-                    Default(c);
-                    break;
-                }
-                if (Match('%')) AddToken(TokenType.Mod);
-                else Default(c);
-                break;
-            // Handle strings
-            case '"':
-                String();
-                break;
-
-            case ';':
-                AddToken(TokenType.SemiColon);
-                break;
-
-            case ' ':
-            case '\r':
-            case '\t':
-                // Ignore whitespace.
-                break;
-
-            case '\n':
-                _line++;
-                break;
-
-            default:
-                Default(c);
-                break;
-        }
+                else { Default(c); }
+            }),
+            PLUS____ => Then(() => // Next 2 are for Arithmetic ops
+            {
+                if (!Match('.')) { Default(c); }
+                else if (Match('+')) { AddToken(TokenType.Add); }
+                else if (Match('*')) { AddToken(TokenType.Mult); }
+                else { Default(c); }
+            }),
+            MINUS___ => Then(() =>
+            {
+                if (!Match('.')) { Default(c); }
+                else if (Match('-')) { AddToken(TokenType.Sub); }
+                else if (Match('*')) { AddToken(TokenType.Div); }
+                else { Default(c); }
+            }),
+            MODULO__ => Then(() => // Handle modulo
+            {
+                if (!Match('.')) { Default(c); }
+                else if (Match('%')) { AddToken(TokenType.Mod); }
+                else { Default(c); }
+            }),
+            STRING__ => Then(() => String()),// Handle strings
+            LINE_END => AddTk(TokenType.SemiColon),
+            SPACE___ => true, // Ignore whitespace.
+            RCHARIOT => true,
+            TAB_____ => true,
+            NEW_LINE => Then(() => _line++),
+            _ => Then(() => Default(c)),//default case
+        };
     }
 
     private void Default(char c)
@@ -273,6 +245,11 @@ public class Scanner : IScanner
     private char Peek()
     {
         return IsEof() ? '\0' : _source[_current];
+    }
+
+    private char Peek(int offset)
+    {
+        return IsEof(offset) ? '\0' : _source[_current + offset];
     }
 
     private char PeekNext()
@@ -358,5 +335,10 @@ public class Scanner : IScanner
     private bool IsEof()
     {
         return _current >= _source.Length;
+    }
+
+    private bool IsEof(int offset)
+    {
+        return _current + offset >= _source.Length;
     }
 }
