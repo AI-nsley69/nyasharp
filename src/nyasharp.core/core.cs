@@ -13,7 +13,7 @@ namespace nyasharp
         public static Events.PrintWorker PrintWorker = new();
         public static Events.ErrorWorker ErrorWorker = new();
         
-        public static bool HadParseError = false;
+        public static bool HadError = false;
         public static void Run(string source)
         {
             // Tokenize
@@ -22,10 +22,12 @@ namespace nyasharp
             // Parse
             var statements= Parse(tokens);
 
-            if (HadParseError) return;
+            if (HadError) return;
 
-                // Resolve
+            // Resolve
             Resolve(statements);
+            
+            if (HadError) return;
 
             _interpreter.Interpret(statements);
         }
@@ -50,6 +52,7 @@ namespace nyasharp
 
         private static void Report(int line, string where, string message)
         {
+            HadError = true;
             ErrorWorker.Invoke("[line " + line + "] Error" + where + ": " + message);
         }
         

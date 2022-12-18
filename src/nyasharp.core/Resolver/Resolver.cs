@@ -4,8 +4,10 @@ namespace nyasharp.Resolver;
 
 public class Resolver : Expr.Visitor<string>, Stmt.Visitor
 {
+
     private readonly Interpreter.Interpreter _interpreter;
     private readonly Stack<Dictionary<String, bool>> _scopes = new();
+    private FunctionType currentFunc = FunctionType.None;
 
     public Resolver(Interpreter.Interpreter interpreter)
     {
@@ -29,8 +31,8 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
     {
         Declare(func.name);
         Define(func.name);
-
-        ResolveFunction(func);
+        
+        ResolveFunction(func, FunctionType.Function);
     }
 
     public void VisitStmtIf(Stmt.If stmt)
@@ -47,6 +49,7 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
 
     public void VisitStmtReturn(Stmt.Return stmt)
     {
+        if (currentFunc == FunctionType.None) core.Error(stmt.keyword, "Can't return from top level code.");
         if (stmt.value == null) return;
         Resolve(stmt.value);
     }
@@ -160,8 +163,11 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
         expr.Accept(this);
     }
 
-    private void ResolveFunction(Stmt.Func func)
+    private void ResolveFunction(Stmt.Func func, FunctionType type)
     {
+        FunctionType enclosingFunction = currentFunc;
+        currentFunc = type;
+        
         BeginScope();
         foreach (var param in func.parameters)
         {
@@ -171,6 +177,8 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
         
         Resolve(func.body);
         EndScope();
+
+        currentFunc = enclosingFunction;
     }
 
     private void BeginScope()
@@ -187,6 +195,7 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
     {
         if (_scopes.Count == 0) return;
         var scope = _scopes.Peek();
+        if (scope.ContainsKey(name.lexeme)) core.Error(name, "Already a variable with this name inside a scope.");
         scope.Add(name.lexeme, false);
     }
 

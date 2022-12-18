@@ -465,7 +465,6 @@ public class Parser
     private ParserError Error(Token token, string message)
     {
         core.Error(token, message);
-        core.HadParseError = true;
         return new ParserError();
     }
 
