@@ -5,7 +5,7 @@ namespace nyasharp.Parser;
 
 public class Parser
 {
-    private class ParserError : Exception {};
+    public class ParserError : Exception {};
     private readonly List<Token> _tokens;
     private int _current;
 
@@ -465,6 +465,7 @@ public class Parser
     private ParserError Error(Token token, string message)
     {
         core.Error(token, message);
+        core.HadParseError = true;
         return new ParserError();
     }
 

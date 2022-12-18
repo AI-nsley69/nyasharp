@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using nyasharp.AST;
 using nyasharp.Interpreter;
+using Environment = nyasharp.Interpreter.Environment;
 
 namespace nyasharp
 {
@@ -10,13 +12,20 @@ namespace nyasharp
         private static Interpreter.Interpreter _interpreter = new();
         public static Events.PrintWorker PrintWorker = new();
         public static Events.ErrorWorker ErrorWorker = new();
+        
+        public static bool HadParseError = false;
         public static void Run(string source)
         {
             // Tokenize
             var tokens = Tokenize(source);
 
             // Parse
-            var statements = Parse(tokens);
+            var statements= Parse(tokens);
+
+            if (HadParseError) return;
+
+                // Resolve
+            Resolve(statements);
 
             _interpreter.Interpret(statements);
         }
@@ -31,6 +40,12 @@ namespace nyasharp
         {
             var parser = new Parser.Parser(tokens);
             return parser.Parse();
+        }
+
+        public static void Resolve(List<Stmt?> statements)
+        {
+            var resolver = new Resolver.Resolver(_interpreter);
+            resolver.Resolve(statements);
         }
 
         private static void Report(int line, string where, string message)
