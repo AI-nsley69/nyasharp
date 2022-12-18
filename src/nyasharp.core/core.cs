@@ -2,6 +2,7 @@
 using System.Text;
 using nyasharp.AST;
 using nyasharp.Interpreter;
+using nyasharp.Interpreter.Natives;
 using Environment = nyasharp.Interpreter.Environment;
 
 namespace nyasharp
@@ -52,8 +53,8 @@ namespace nyasharp
 
         private static void Report(int line, string where, string message)
         {
+            ErrorWorker.Invoke(UwU.uwuify("[line " + line + "] Error" + where + ": " + message));
             HadError = true;
-            ErrorWorker.Invoke("[line " + line + "] Error" + where + ": " + message);
         }
         
         public static void Error(Token token, string message)
