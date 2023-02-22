@@ -25,9 +25,11 @@ jobs:
         dotnet-version: '7.0.x'
     - name: Publish .NET Core Project
       run: dotnet publish ./src/nyasharp.web/nyasharp.web.csproj -c Release -o release --nologo
-    - name: Commit wwwroot to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
       with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: release/wwwroot
+        # Upload entire repository
+        path: './release/wwwroot'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
