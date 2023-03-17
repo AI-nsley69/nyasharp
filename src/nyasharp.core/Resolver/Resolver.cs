@@ -80,7 +80,7 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
         return null;
     }
 
-    public string? VisitExpressionBinary(Expr.Binary binary)
+    public string? VisitExpressionBinary(Expr.Binary? binary)
     {
         Resolve(binary.left);
         Resolve(binary.right);
@@ -127,8 +127,10 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
     {
         if (_scopes.Count > 0)
         {
-            _scopes.Peek().TryGetValue(var.name.lexeme, out var value);
-            if (!value) core.Error(var.name, "Can't read local variable in its own initializer");
+            if (_scopes.Peek().TryGetValue(var.name.lexeme, out var value))
+            {
+                if (!value) core.Error(var.name, "Can't read local variable in its own initializer");   
+            }
         }   
 
         ResolveLocal(var, var.name);
@@ -137,7 +139,7 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
 
     private void ResolveLocal(Expr expr, Token name)
     {
-        for (int i = _scopes.Count - 1; i >= 0; i--)
+        for (var i = _scopes.Count - 1; i >= 0; i--)
         {
             if (!_scopes.ElementAt(i).ContainsKey(name.lexeme)) continue;
             _interpreter.Resolve(expr, _scopes.Count - 1 - i);
@@ -196,12 +198,12 @@ public class Resolver : Expr.Visitor<string>, Stmt.Visitor
         if (_scopes.Count == 0) return;
         var scope = _scopes.Peek();
         if (scope.ContainsKey(name.lexeme)) core.Error(name, "Already a variable with this name inside a scope.");
-        scope.Add(name.lexeme, false);
+        scope.TryAdd(name.lexeme, false);
     }
 
     private void Define(Token name)
     {
         if (_scopes.Count == 0) return;
-        _scopes.Peek().Add(name.lexeme, true);
+        _scopes.Peek()[name.lexeme] = true;
     }
 }

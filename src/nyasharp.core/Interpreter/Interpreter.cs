@@ -287,16 +287,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
 
     private object LookUpVariable(Token name, Expr expr)
     {
-        int distance = -1;
-        _locals.TryGetValue(expr, out distance);
-        if (distance >= 0)
+        if (_locals.TryGetValue(expr, out var distance))
         {
-            return Environment.GetAt(distance, name.lexeme);
+            return Environment.GetAt(distance, name.lexeme);   
         }
-        else
-        {
-            return Globals.Get(name);
-        }
+
+        return Globals.Get(name);
     }
 
     public void VisitStmtExpression(Stmt.Expression stmt)
