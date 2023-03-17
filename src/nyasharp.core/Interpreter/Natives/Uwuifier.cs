@@ -4,8 +4,7 @@ using System.Text.RegularExpressions;
 namespace nyasharp.Interpreter.Natives;
 
 // see https://gist.github.com/cgytrus/737d45afdfcabab6b59833373d4b99ff for licensing info
-// slightly modified to work with this project
-public static class UwU {
+public static class Uwuifier {
     public class Settings {
         public float periodToExclamationChance = 0.2f;
         public float stutterChance = 0.1f;
@@ -223,6 +222,4 @@ public static class UwU {
     }
 
     public static string Uwuify(string text) => Uwuify(text, false, (_, _) => false);
-
-    public static string uwuify(string text) => Uwuify(text);
 }
