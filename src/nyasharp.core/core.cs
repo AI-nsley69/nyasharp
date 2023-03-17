@@ -17,6 +17,8 @@ namespace nyasharp
         public static bool HadError = false;
         public static void Run(string source)
         {
+            // Clean the environment before running again
+            CleanEnv();
             // Tokenize
             var tokens = Tokenize(source);
 
@@ -31,6 +33,11 @@ namespace nyasharp
             if (HadError) return;
 
             _interpreter.Interpret(statements);
+        }
+
+        private static void CleanEnv()
+        {
+            HadError = false;
         }
 
         public static List<Token> Tokenize(string source)
