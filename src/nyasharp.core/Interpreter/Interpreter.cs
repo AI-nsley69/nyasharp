@@ -15,7 +15,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor
         Environment = Globals;
         Globals.Define("uwuify", new NativeFunction("uwuify", (_, s) =>
         {
-            var str = UwU.uwuify(Stringify(s[0])!);
+            var str = Uwuifier.Uwuify(Stringify(s[0])!);
             return str;
         }, 1));
         Globals.Define("emoticon", new NativeFunction("emoticon", (_, __) =>

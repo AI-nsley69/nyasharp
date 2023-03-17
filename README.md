@@ -1,4 +1,4 @@
-# nyasharp~
+# nyasharp
 
 Nyasharp is an esoteric programming language consisting mainly of emoticons similar to uwuspeak for tokens and keywords.
 

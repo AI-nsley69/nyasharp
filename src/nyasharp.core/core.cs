@@ -53,7 +53,7 @@ namespace nyasharp
 
         private static void Report(int line, string where, string message)
         {
-            ErrorWorker.Invoke(UwU.uwuify("[line " + line + "] Error" + where + ": " + message));
+            ErrorWorker.Invoke(Uwuifier.Uwuify("[line " + line + "] Error" + where + ": " + message));
             HadError = true;
         }
         
